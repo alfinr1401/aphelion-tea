@@ -1,0 +1,2515 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Aphelion Tea — Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root {
+  --green-50:#E8F7F1;--green-100:#C2EBDA;--green-400:#2DBF87;--green-500:#1D9E75;--green-600:#0F6E56;--green-700:#085041;
+  --amber-50:#FEF9EC;--amber-400:#F4C233;--amber-600:#D4920A;
+  --red-50:#FEF0EE;--red-400:#F06B5B;--red-600:#C0392B;
+  --blue-50:#EEF5FF;--blue-400:#5B8DEF;--blue-600:#2C5FC4;
+  --gray-50:#F8F7F4;--gray-100:#EFEDE8;--gray-200:#DDD9D1;--gray-300:#C4BFB4;--gray-400:#9E9890;--gray-600:#5E5A54;--gray-800:#2C2A26;--gray-900:#1A1916;
+  --bg:#F8F7F4;--surface:#FFFFFF;--border:#E8E4DE;
+  --text-primary:#1A1916;--text-secondary:#5E5A54;--text-muted:#9E9890;
+  --radius:10px;--radius-lg:16px;--radius-xl:24px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);
+  --shadow-lg:0 4px 16px rgba(0,0,0,.08),0 8px 32px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;font-size:15px}
+h1,h2,h3,h4{font-family:'DM Serif Display',serif;font-weight:400}
+input,select,textarea,button{font-family:'DM Sans',sans-serif}
+
+/* ===== LOGIN ===== */
+#login-screen{display:flex;min-height:100vh;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--green-600) 0%,var(--green-500) 50%,var(--amber-600) 100%);padding:1.5rem;position:relative;overflow:hidden}
+#login-screen::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+.login-box{background:var(--surface);border-radius:var(--radius-xl);padding:2.5rem 2rem;width:100%;max-width:400px;box-shadow:var(--shadow-lg);position:relative;z-index:1}
+.login-logo{text-align:center;margin-bottom:2rem}
+.login-logo .icon{width:60px;height:60px;background:linear-gradient(135deg,var(--green-400),var(--amber-400));border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:28px}
+.login-logo h1{font-size:26px;color:var(--green-600);letter-spacing:-.5px}
+.login-logo p{font-size:13px;color:var(--text-muted);margin-top:3px}
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;letter-spacing:.3px;text-transform:uppercase}
+.form-group input,.form-group select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;color:var(--text-primary);background:var(--surface);transition:border-color .2s,box-shadow .2s;outline:none}
+.form-group input:focus,.form-group select:focus{border-color:var(--green-400);box-shadow:0 0 0 3px rgba(45,191,135,.12)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 20px;border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .18s;text-decoration:none;white-space:nowrap}
+.btn-primary{background:var(--green-500);color:#fff;width:100%;margin-top:.5rem}
+.btn-primary:hover{background:var(--green-600);transform:translateY(-1px);box-shadow:0 4px 12px rgba(29,158,117,.3)}
+.btn-primary:active{transform:translateY(0)}
+.btn-ghost{background:transparent;color:var(--text-secondary);border:1.5px solid var(--border)}
+.btn-ghost:hover{background:var(--gray-100);border-color:var(--gray-300)}
+.btn-danger{background:var(--red-50);color:var(--red-600);border:1.5px solid rgba(192,57,43,.2)}
+.btn-danger:hover{background:var(--red-400);color:#fff}
+.btn-sm{padding:7px 14px;font-size:13px}
+.btn-amber{background:var(--amber-50);color:var(--amber-600);border:1.5px solid rgba(212,146,10,.2)}
+.btn-amber:hover{background:var(--amber-400);color:#fff}
+.login-hint{background:var(--green-50);border-radius:var(--radius);padding:12px 14px;margin-top:1rem;font-size:12px;color:var(--green-600);line-height:1.6}
+.login-hint strong{font-weight:600;display:block;margin-bottom:4px}
+.login-error{background:var(--red-50);border-radius:var(--radius);padding:10px 14px;font-size:13px;color:var(--red-600);margin-bottom:1rem;display:none}
+
+/* ===== APP LAYOUT ===== */
+#app{display:none;min-height:100vh;flex-direction:column}
+.topbar{background:var(--green-600);color:#fff;padding:0 1.5rem;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-brand{display:flex;align-items:center;gap:10px}
+.topbar-brand .logo-mark{width:32px;height:32px;background:rgba(255,255,255,.2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.topbar-brand .brand-name{font-family:'DM Serif Display',serif;font-size:18px;letter-spacing:-.3px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.user-pill{background:rgba(255,255,255,.15);border-radius:99px;padding:5px 12px 5px 5px;display:flex;align-items:center;gap:8px;font-size:13px}
+.user-avatar{width:26px;height:26px;background:rgba(255,255,255,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
+.role-badge{background:rgba(244,194,51,.3);color:#FEF9EC;border-radius:99px;padding:2px 8px;font-size:11px;font-weight:500}
+.btn-logout{background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:var(--radius);padding:7px 14px;font-size:13px;cursor:pointer;transition:background .2s}
+.btn-logout:hover{background:rgba(255,255,255,.25)}
+
+/* ===== SIDEBAR + MAIN ===== */
+.layout{display:flex;flex:1}
+.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);padding:1rem 0;flex-shrink:0}
+.sidebar-section{padding:0 .75rem;margin-bottom:.5rem}
+.sidebar-label{font-size:10px;font-weight:600;color:var(--text-muted);letter-spacing:.8px;text-transform:uppercase;padding:8px 10px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius);cursor:pointer;font-size:14px;color:var(--text-secondary);transition:all .15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--gray-100);color:var(--text-primary)}
+.nav-item.active{background:var(--green-50);color:var(--green-600);font-weight:500}
+.nav-item .icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.nav-item.active .icon{background:var(--green-100)}
+.main{flex:1;padding:1.5rem;overflow-x:hidden;min-width:0}
+.page-section{display:none}
+.page-section.active{display:block}
+
+/* ===== CARDS & METRICS ===== */
+.page-header{margin-bottom:1.5rem}
+.page-header h2{font-size:24px;color:var(--text-primary);margin-bottom:4px}
+.page-header p{font-size:14px;color:var(--text-muted)}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:1.5rem}
+.metric-card{background:var(--surface);border-radius:var(--radius-lg);padding:1.25rem;border:1px solid var(--border);box-shadow:var(--shadow)}
+.metric-card .m-label{font-size:12px;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.metric-card .m-value{font-size:26px;font-family:'DM Serif Display',serif;color:var(--text-primary)}
+.metric-card .m-sub{font-size:12px;color:var(--text-muted);margin-top:4px}
+.metric-card .m-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px}
+.m-icon.green{background:var(--green-50)}
+.m-icon.amber{background:var(--amber-50)}
+.m-icon.red{background:var(--red-50)}
+.m-icon.blue{background:var(--blue-50)}
+.card{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);box-shadow:var(--shadow)}
+.card-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-header h3{font-size:16px;font-family:'DM Serif Display',serif}
+.card-body{padding:1.25rem}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+
+/* ===== TABLE ===== */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text-primary);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--gray-50)}
+
+/* ===== BADGE ===== */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:500}
+.badge-green{background:var(--green-50);color:var(--green-600)}
+.badge-amber{background:var(--amber-50);color:var(--amber-600)}
+.badge-red{background:var(--red-50);color:var(--red-600)}
+.badge-blue{background:var(--blue-50);color:var(--blue-600)}
+.badge-gray{background:var(--gray-100);color:var(--gray-600)}
+
+/* ===== FORM ===== */
+.form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem}
+.form-field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:140px}
+.form-field label{font-size:12px;font-weight:500;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.3px}
+.form-field input,.form-field select,.form-field textarea{padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;color:var(--text-primary);background:var(--surface);outline:none;transition:border-color .2s}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--green-400);box-shadow:0 0 0 3px rgba(45,191,135,.1)}
+
+/* ===== PAYMENT ===== */
+.payment-toggle{display:flex;gap:8px;margin-bottom:1rem}
+.payment-btn{flex:1;padding:14px;border-radius:var(--radius);border:2px solid var(--border);background:var(--surface);cursor:pointer;text-align:center;transition:all .2s;font-family:'DM Sans',sans-serif}
+.payment-btn.active{border-color:var(--green-400);background:var(--green-50)}
+.payment-btn .pb-icon{font-size:24px;display:block;margin-bottom:4px}
+.payment-btn .pb-label{font-size:13px;font-weight:500;color:var(--text-primary)}
+.payment-btn .pb-sub{font-size:11px;color:var(--text-muted)}
+
+/* ===== POS ===== */
+.pos-layout{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
+.flavor-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.flavor-tile{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:14px;cursor:pointer;transition:all .18s;text-align:center}
+.flavor-tile:hover{border-color:var(--green-400);box-shadow:0 0 0 3px rgba(45,191,135,.1)}
+.flavor-tile.disabled{opacity:.45;cursor:not-allowed}
+.flavor-tile .ft-icon{font-size:26px;margin-bottom:6px;display:block}
+.flavor-tile .ft-name{font-size:12px;font-weight:500;color:var(--text-primary);margin-bottom:3px;line-height:1.3}
+.flavor-tile .ft-price{font-size:13px;color:var(--green-500);font-weight:600}
+.flavor-tile .ft-stock{font-size:11px;color:var(--text-muted);margin-top:2px}
+.cart-section{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);box-shadow:var(--shadow);position:sticky;top:76px}
+.cart-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);font-family:'DM Serif Display',serif;font-size:17px}
+.cart-items{padding:.75rem 1.25rem;min-height:120px;max-height:300px;overflow-y:auto}
+.cart-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.cart-item:last-child{border-bottom:none}
+.ci-name{font-size:13px;color:var(--text-primary);font-weight:500}
+.ci-sub{font-size:11px;color:var(--text-muted)}
+.ci-controls{display:flex;align-items:center;gap:6px}
+.qty-btn{width:26px;height:26px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;color:var(--text-primary)}
+.qty-btn:hover{background:var(--green-50);border-color:var(--green-400)}
+.qty-val{font-size:13px;font-weight:600;min-width:20px;text-align:center}
+.ci-total{font-size:13px;font-weight:600;color:var(--green-500);min-width:70px;text-align:right}
+.cart-empty{text-align:center;padding:2rem 1rem;color:var(--text-muted);font-size:13px}
+.cart-footer{padding:1rem 1.25rem;border-top:1px solid var(--border)}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.ct-label{font-size:13px;color:var(--text-secondary)}
+.ct-val{font-size:20px;font-family:'DM Serif Display',serif;color:var(--green-600)}
+
+/* ===== STOCK BAR ===== */
+.stock-bar-wrap{background:var(--gray-100);border-radius:4px;height:6px;width:100%;overflow:hidden}
+.stock-bar{height:100%;border-radius:4px;transition:width .4s}
+.booth-tab{padding:8px 16px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:500;color:var(--text-secondary);border-bottom:2px solid transparent;margin-bottom:-2px;border-radius:var(--radius) var(--radius) 0 0;transition:all .15s}
+.booth-tab:hover{color:var(--text-primary);background:var(--gray-50)}
+.booth-tab-active{color:var(--green-600);border-bottom-color:var(--green-500);background:var(--green-50)}
+.booth-stock-chip{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-size:12px;font-weight:500;color:var(--text-secondary);transition:all .15s}
+.booth-stock-chip:hover{border-color:var(--green-400);color:var(--green-600)}
+.booth-stock-chip.active{background:var(--green-500);border-color:var(--green-500);color:#fff}
+
+/* ===== MODAL ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(26,25,22,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1.5rem;backdrop-filter:blur(3px)}
+.modal-box{background:var(--surface);border-radius:var(--radius-xl);padding:0;width:100%;max-width:480px;box-shadow:var(--shadow-lg);animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.modal-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-header h3{font-size:18px;font-family:'DM Serif Display',serif}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted);line-height:1;padding:4px}
+.modal-body{padding:1.5rem}
+.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+
+/* ===== TOAST ===== */
+#toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:var(--radius);font-size:14px;font-weight:500;z-index:9999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;max-width:300px}
+#toast.success{background:var(--green-600);color:#fff;opacity:1;transform:translateY(0)}
+#toast.error{background:var(--red-600);color:#fff;opacity:1;transform:translateY(0)}
+
+/* ===== RECEIPT ===== */
+.receipt{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;font-size:13px;max-width:340px;margin:0 auto}
+.receipt-header{text-align:center;margin-bottom:1rem;border-bottom:1px dashed var(--border);padding-bottom:1rem}
+.receipt-row{display:flex;justify-content:space-between;margin-bottom:6px}
+.receipt-divider{border:none;border-top:1px dashed var(--border);margin:10px 0}
+.receipt-total{font-weight:600;font-size:15px;color:var(--green-600)}
+.qris-display{text-align:center;padding:1.5rem}
+.qris-code{width:180px;height:180px;background:var(--gray-100);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:11px;color:var(--text-muted);flex-direction:column;gap:4px;border:3px dashed var(--border)}
+
+/* ===== CHART ===== */
+.chart-wrap{position:relative;width:100%;height:260px}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .sidebar{width:56px;overflow:hidden}
+  .sidebar-label,.nav-item span:last-child{display:none}
+  .nav-item{justify-content:center;padding:10px}
+  .pos-layout{grid-template-columns:1fr}
+  .grid-2,.grid-3{grid-template-columns:1fr}
+}
+@media(max-width:600px){.main{padding:1rem}.topbar{padding:0 1rem}}
+
+/* ===== UTILS ===== */
+.sep{height:1px;background:var(--border);margin:1.25rem 0}
+.text-green{color:var(--green-500)}
+.text-red{color:var(--red-600)}
+.text-amber{color:var(--amber-600)}
+.text-muted{color:var(--text-muted)}
+.flex{display:flex;align-items:center;gap:8px}
+.flex-between{display:flex;align-items:center;justify-content:space-between}
+.mt-1{margin-top:.75rem}
+.mt-2{margin-top:1.25rem}
+.mb-1{margin-bottom:.75rem}
+.hidden{display:none}
+.w-full{width:100%}
+.admin-only{/* shown only for admin */}
+.staff-only{/* shown only for staff */}
+
+/* ===== EXPORT BUTTONS ===== */
+.export-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.btn-csv{background:#E8F5E9;color:#2E7D32;border:1.5px solid rgba(46,125,50,.25)}
+.btn-csv:hover{background:#43A047;color:#fff}
+.btn-pdf{background:#FDE8E8;color:#C62828;border:1.5px solid rgba(198,40,40,.25)}
+.btn-pdf:hover{background:#E53935;color:#fff}
+.export-dropdown{position:relative;display:inline-block}
+.export-menu{position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);min-width:160px;z-index:200;overflow:hidden;display:none}
+.export-menu.open{display:block}
+.export-menu button{display:flex;align-items:center;gap:8px;width:100%;padding:10px 14px;background:none;border:none;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--text-primary);text-align:left;transition:background .15s}
+.export-menu button:hover{background:var(--gray-50)}
+.export-menu .sep-line{height:1px;background:var(--border);margin:2px 0}
+
+.profile-card{background:var(--surface);border-radius:var(--radius-xl);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden}
+.profile-banner{height:80px;background:linear-gradient(135deg,var(--green-600),var(--green-400));position:relative}
+.profile-avatar-wrap{position:absolute;bottom:-28px;left:1.5rem}
+.profile-avatar-lg{width:60px;height:60px;border-radius:50%;background:var(--amber-400);border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;font-family:'DM Serif Display',serif}
+.profile-info{padding:2.5rem 1.5rem 1.5rem}
+.profile-name{font-size:20px;font-family:'DM Serif Display',serif;margin-bottom:2px}
+.profile-meta{font-size:13px;color:var(--text-muted)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:1.25rem}
+.info-item{background:var(--gray-50);border-radius:var(--radius);padding:12px 14px;border:1px solid var(--border)}
+.info-item .ii-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.info-item .ii-val{font-size:14px;color:var(--text-primary);font-weight:500}
+.tab-bar{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:1.25rem}
+.tab-btn{padding:8px 16px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tab-btn.active{color:var(--green-600);border-bottom-color:var(--green-500);font-weight:500}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.user-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;display:flex;align-items:center;gap:14px;transition:box-shadow .15s}
+.user-card:hover{box-shadow:var(--shadow)}
+.uc-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#fff;flex-shrink:0;font-family:'DM Serif Display',serif}
+.uc-info{flex:1;min-width:0}
+.uc-name{font-size:14px;font-weight:500;color:var(--text-primary)}
+.uc-meta{font-size:12px;color:var(--text-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.uc-actions{display:flex;gap:6px;flex-shrink:0}
+.input-icon-wrap{position:relative}
+.input-icon-wrap .input-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}
+.input-icon-wrap input{padding-left:36px}
+.pass-strength{height:4px;border-radius:4px;margin-top:6px;transition:all .3s;background:var(--gray-200)}
+.pass-strength-bar{height:100%;border-radius:4px;transition:all .3s}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="icon">🍵</div>
+      <h1>Aphelion Tea</h1>
+      <p>Management System</p>
+    </div>
+    <div class="login-error" id="login-error">Username atau password salah. Coba lagi.</div>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="login-user" placeholder="Masukkan username" />
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="Masukkan password" onkeydown="if(event.key==='Enter')doLogin()" />
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">Masuk</button>
+    <div class="login-hint">
+      <strong>Akun Demo:</strong>
+      Admin: <b>admin</b> / <b>admin123</b><br>
+      Karyawan Booth 1: <b>booth1</b> / <b>pass123</b><br>
+      Karyawan Booth 2: <b>booth2</b> / <b>pass123</b><br>
+      Karyawan Booth 3: <b>booth3</b> / <b>pass123</b>
+    </div>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="logo-mark">🍵</div>
+      <span class="brand-name">Aphelion Tea</span>
+    </div>
+    <div class="topbar-right">
+      <div class="user-pill">
+        <div class="user-avatar" id="topbar-avatar">A</div>
+        <span id="topbar-name">Admin</span>
+        <span class="role-badge" id="topbar-role">Admin</span>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Keluar</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Utama</div>
+        <button class="nav-item active" onclick="navTo('dashboard')">
+          <div class="icon">📊</div><span>Dashboard</span>
+        </button>
+        <button class="nav-item" onclick="navTo('pos')">
+          <div class="icon">🧾</div><span>Kasir / POS</span>
+        </button>
+      </div>
+      <div class="sidebar-section admin-only" id="nav-admin-section">
+        <div class="sidebar-label">Admin</div>
+        <button class="nav-item" onclick="navTo('booths')">
+          <div class="icon">🏪</div><span>Kelola Booth</span>
+        </button>
+        <button class="nav-item" onclick="navTo('staff')">
+          <div class="icon">👥</div><span>Karyawan</span>
+        </button>
+        <button class="nav-item" onclick="navTo('stock')">
+          <div class="icon">📦</div><span>Stok Global</span>
+        </button>
+        <button class="nav-item" onclick="navTo('finance')">
+          <div class="icon">💰</div><span>Keuangan</span>
+        </button>
+        <button class="nav-item" onclick="navTo('report')">
+          <div class="icon">📑</div><span>Laporan</span>
+        </button>
+        <button class="nav-item" onclick="navTo('users')">
+          <div class="icon">🔐</div><span>Manajemen User</span>
+        </button>
+      </div>
+      <div class="sidebar-section staff-only" id="nav-staff-section" style="display:none">
+        <div class="sidebar-label">Booth Saya</div>
+        <button class="nav-item" onclick="navTo('my-stock')">
+          <div class="icon">📦</div><span>Stok Saya</span>
+        </button>
+        <button class="nav-item" onclick="navTo('my-sales')">
+          <div class="icon">📋</div><span>Penjualan Saya</span>
+        </button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Akun</div>
+        <button class="nav-item" onclick="navTo('profile')">
+          <div class="icon">👤</div><span>Profil Saya</span>
+        </button>
+      </div>
+    </nav>
+
+    <main class="main">
+
+      <!-- DASHBOARD -->
+      <div class="page-section active" id="sec-dashboard">
+        <div class="page-header">
+          <h2>Dashboard</h2>
+          <p id="dash-subtitle">Selamat datang — ringkasan performa hari ini</p>
+        </div>
+        <div class="metric-grid" id="dash-metrics"></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><h3>Penjualan per Booth</h3></div>
+            <div class="card-body"><div class="chart-wrap"><canvas id="chartBooth" role="img" aria-label="Grafik penjualan per booth">Memuat...</canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Metode Pembayaran</h3></div>
+            <div class="card-body"><div class="chart-wrap"><canvas id="chartPayment" role="img" aria-label="Grafik metode pembayaran">Memuat...</canvas></div></div>
+          </div>
+        </div>
+        <div class="card mt-2">
+          <div class="card-header"><h3>Rasa Terlaris</h3></div>
+          <div class="card-body"><div id="top-flavors-list"></div></div>
+        </div>
+      </div>
+
+      <!-- POS -->
+      <div class="page-section" id="sec-pos">
+        <div class="page-header flex-between">
+          <div><h2>Kasir / POS</h2><p id="pos-booth-label">Pilih rasa dan tambahkan ke keranjang</p></div>
+          <div class="flex" id="pos-booth-selector-wrap"></div>
+        </div>
+        <div class="pos-layout">
+          <div>
+            <div class="card mb-1">
+              <div class="card-body" style="padding:.75rem 1rem">
+                <div class="flex-between">
+                  <span style="font-size:13px;color:var(--text-muted)">Filter rasa:</span>
+                  <input type="text" id="flavor-search" placeholder="Cari rasa..." style="padding:7px 11px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;outline:none;width:180px" oninput="renderFlavorTiles()" />
+                </div>
+              </div>
+            </div>
+            <div class="flavor-list" id="flavor-tiles"></div>
+          </div>
+          <div class="cart-section">
+            <div class="cart-header">🛒 Keranjang</div>
+            <div class="cart-items" id="cart-items"><div class="cart-empty">Pilih rasa untuk memulai...</div></div>
+            <div class="cart-footer">
+              <div class="sep" style="margin:.5rem 0 .75rem"></div>
+              <div class="payment-toggle" id="payment-toggle">
+                <button class="payment-btn active" onclick="setPayment('cash')">
+                  <span class="pb-icon">💵</span>
+                  <span class="pb-label">Cash</span>
+                  <span class="pb-sub">Tunai</span>
+                </button>
+                <button class="payment-btn" onclick="setPayment('qris')">
+                  <span class="pb-icon">📱</span>
+                  <span class="pb-label">QRIS</span>
+                  <span class="pb-sub">Scan QR</span>
+                </button>
+              </div>
+              <div id="cash-input-area" class="">
+                <div class="form-field">
+                  <label>Uang diterima (Rp)</label>
+                  <input type="number" id="cash-received" placeholder="0" oninput="updateChange()" />
+                </div>
+                <div class="flex-between mt-1" style="font-size:13px">
+                  <span style="color:var(--text-muted)">Kembalian:</span>
+                  <span id="change-display" style="font-weight:600;color:var(--green-600)">Rp 0</span>
+                </div>
+              </div>
+              <div class="sep" style="margin:.75rem 0"></div>
+              <div class="cart-total-row">
+                <span class="ct-label">Total</span>
+                <span class="ct-val" id="cart-total-display">Rp 0</span>
+              </div>
+              <button class="btn btn-primary w-full" onclick="processPayment()" id="checkout-btn">Proses Pembayaran</button>
+              <button class="btn btn-ghost w-full" style="margin-top:6px" onclick="clearCart()">Kosongkan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOTH MANAGEMENT (ADMIN) -->
+      <div class="page-section" id="sec-booths">
+        <div class="page-header flex-between">
+          <div><h2>Kelola Booth</h2><p>Tambah, edit, hapus booth & kelola stok masing-masing booth</p></div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-booth')">+ Tambah Booth</button>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div style="display:flex;gap:4px;margin-bottom:1rem;border-bottom:2px solid var(--border);padding-bottom:0">
+          <button id="tab-booth-list" class="booth-tab booth-tab-active" onclick="switchBoothTab('list')">🏪 Daftar Booth</button>
+          <button id="tab-booth-stock" class="booth-tab" onclick="switchBoothTab('stock')">📦 Stok per Booth</button>
+        </div>
+
+        <!-- TAB: Daftar Booth -->
+        <div id="booth-tab-list">
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>#</th><th>Nama Booth</th><th>Lokasi</th><th>Penanggung Jawab</th><th>Pendapatan Hari Ini</th><th>Status</th><th>Aksi</th></tr></thead>
+                <tbody id="booth-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: Stok per Booth -->
+        <div id="booth-tab-stock" style="display:none">
+          <!-- Booth selector -->
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:1rem;flex-wrap:wrap">
+            <span style="font-size:13px;font-weight:600;color:var(--text-secondary)">Pilih Booth:</span>
+            <div id="booth-stock-tabs" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+          </div>
+          <!-- Stock table per booth -->
+          <div class="card">
+            <div class="card-header flex-between">
+              <h3 id="stock-booth-title">Stok Booth</h3>
+              <button class="btn btn-primary btn-sm" onclick="openRestockForBooth()">+ Isi Ulang Stok</button>
+            </div>
+            <div class="card-body" style="padding:0">
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>#</th><th>Icon</th><th>Nama Rasa</th><th>Harga</th><th>Stok</th><th>Status</th><th>Aksi</th></tr></thead>
+                  <tbody id="booth-stock-table-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAFF MANAGEMENT (ADMIN) -->
+      <div class="page-section" id="sec-staff">
+        <div class="page-header flex-between">
+          <div><h2>Manajemen Karyawan</h2><p>Kelola akun karyawan setiap booth</p></div>
+          <div class="export-bar">
+            <button class="btn btn-sm btn-csv" onclick="exportStaffCSV()">⬇ CSV</button>
+            <button class="btn btn-sm btn-pdf" onclick="exportStaffPDF()">⬇ PDF</button>
+            <button class="btn btn-primary btn-sm" onclick="openAddUserModal()">+ Tambah Karyawan</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Nama &amp; No. HP</th><th>Username</th><th>Booth</th><th>Peran</th><th>Status</th><th>Aksi</th></tr></thead>
+              <tbody id="staff-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- STOCK GLOBAL (ADMIN) -->
+      <div class="page-section" id="sec-stock">
+        <div class="page-header flex-between">
+          <div><h2>Stok Global</h2><p>Kelola rasa, isi ulang & pantau stok semua booth</p></div>
+          <div class="flex" style="gap:8px">
+            <button class="btn btn-sm btn-csv" onclick="exportStockCSV()">⬇ CSV</button>
+            <button class="btn btn-sm btn-pdf" onclick="exportStockPDF()">⬇ PDF</button>
+            <button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-flavor')">+ Tambah Rasa</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-restock')">+ Isi Ulang Stok</button>
+          </div>
+        </div>
+
+        <!-- FLAVOR TABLE -->
+        <div class="card mb-1">
+          <div class="card-header flex-between">
+            <h3>Daftar Rasa Teh</h3>
+            <span style="font-size:12px;color:var(--text-muted)" id="flavor-count-badge"></span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Icon</th>
+                  <th>Nama Rasa</th>
+                  <th>Harga</th>
+                  <th>Stok Total</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="flavor-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card mt-2">
+          <div class="card-header"><h3>Stok per Booth</h3></div>
+          <div class="card-body" id="stock-booth-detail"></div>
+        </div>
+      </div>
+
+      <!-- FINANCE (ADMIN) -->
+      <div class="page-section" id="sec-finance">
+        <div class="page-header flex-between">
+          <div><h2>Laporan Keuangan</h2><p>Ringkasan pendapatan, metode bayar, dan analisis</p></div>
+          <div class="export-bar">
+            <button class="btn btn-sm btn-csv" onclick="exportFinanceCSV()">⬇ CSV</button>
+            <button class="btn btn-sm btn-pdf" onclick="exportFinancePDF()">⬇ PDF</button>
+          </div>
+        </div>
+        <div class="metric-grid" id="finance-metrics"></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><h3>Pendapatan per Hari (7 Hari Terakhir)</h3></div>
+            <div class="card-body"><div class="chart-wrap"><canvas id="chartRevenue7" role="img" aria-label="Revenue 7 hari">Memuat...</canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Komposisi Penjualan Rasa</h3></div>
+            <div class="card-body"><div class="chart-wrap"><canvas id="chartFlavorPie" role="img" aria-label="Komposisi rasa">Memuat...</canvas></div></div>
+          </div>
+        </div>
+        <div class="card mt-2">
+          <div class="card-header"><h3>Ringkasan per Booth</h3></div>
+          <div class="card-body">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Booth</th><th>Cash</th><th>QRIS</th><th>Total Transaksi</th><th>Total Gelas</th><th>Total Pendapatan</th></tr></thead>
+                <tbody id="finance-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FULL REPORT (ADMIN) -->
+      <div class="page-section" id="sec-report">
+        <div class="page-header flex-between">
+          <div><h2>Laporan Transaksi</h2><p>Semua riwayat transaksi</p></div>
+          <div class="export-bar">
+            <button class="btn btn-sm btn-csv" onclick="exportTransactionsCSV()">⬇ CSV</button>
+            <button class="btn btn-sm btn-pdf" onclick="exportTransactionsPDF()">⬇ PDF</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <div class="flex" style="gap:10px;flex-wrap:wrap;margin-bottom:1rem">
+              <select id="filter-booth" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;outline:none" onchange="renderReport()"><option value="">Semua Booth</option></select>
+              <select id="filter-payment" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;outline:none" onchange="renderReport()">
+                <option value="">Semua Metode</option>
+                <option value="cash">Cash</option>
+                <option value="qris">QRIS</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Waktu</th><th>Booth</th><th>Rasa</th><th>Qty</th><th>Metode</th><th>Subtotal</th></tr></thead>
+              <tbody id="report-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- USER MANAGEMENT (ADMIN) -->
+      <div class="page-section" id="sec-users">
+        <div class="page-header flex-between">
+          <div><h2>Manajemen User</h2><p>Kelola akun, data pribadi &amp; password pengguna</p></div>
+          <button class="btn btn-primary btn-sm" onclick="openAddUserModal()">+ Tambah User</button>
+        </div>
+        <div class="tab-bar" id="user-tab-bar">
+          <button class="tab-btn active" onclick="switchUserTab('all')">Semua User</button>
+          <button class="tab-btn" onclick="switchUserTab('admin')">Admin</button>
+          <button class="tab-btn" onclick="switchUserTab('staff')">Karyawan</button>
+        </div>
+        <div id="user-cards-container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px"></div>
+      </div>
+
+      <!-- PROFILE PAGE (ALL USERS) -->
+      <div class="page-section" id="sec-profile">
+        <div class="page-header">
+          <h2>Profil Saya</h2>
+          <p>Lihat dan edit informasi akun kamu</p>
+        </div>
+        <div style="display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start" id="profile-layout">
+          <div class="profile-card">
+            <div class="profile-banner"></div>
+            <div class="profile-info">
+              <div class="profile-avatar-wrap">
+                <div class="profile-avatar-lg" id="prof-avatar-lg">A</div>
+              </div>
+              <div class="profile-name" id="prof-name-display">-</div>
+              <div class="profile-meta">
+                <span id="prof-role-display">-</span> &nbsp;&middot;&nbsp; <span id="prof-booth-display">-</span>
+              </div>
+              <div class="info-grid">
+                <div class="info-item">
+                  <div class="ii-label">&#128241; No. HP</div>
+                  <div class="ii-val" id="prof-phone-display">-</div>
+                </div>
+                <div class="info-item">
+                  <div class="ii-label">&#128231; Email</div>
+                  <div class="ii-val" id="prof-email-display" style="font-size:12px">-</div>
+                </div>
+                <div class="info-item" style="grid-column:1/-1">
+                  <div class="ii-label">&#128205; Alamat</div>
+                  <div class="ii-val" id="prof-address-display">-</div>
+                </div>
+                <div class="info-item">
+                  <div class="ii-label">&#128100; Username</div>
+                  <div class="ii-val" id="prof-username-display">-</div>
+                </div>
+                <div class="info-item">
+                  <div class="ii-label">&#128197; Bergabung</div>
+                  <div class="ii-val" id="prof-join-display">-</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="switchProfileTab('edit-info')">Edit Informasi</button>
+              <button class="tab-btn" onclick="switchProfileTab('change-pass')">Ganti Password</button>
+            </div>
+            <div class="tab-panel active" id="ptab-edit-info">
+              <div class="card">
+                <div class="card-header"><h3>Informasi Pribadi</h3></div>
+                <div class="card-body">
+                  <div class="form-row">
+                    <div class="form-field"><label>Nama Lengkap</label><input type="text" id="pe-name" placeholder="Nama lengkap" /></div>
+                    <div class="form-field"><label>Email</label><input type="email" id="pe-email" placeholder="email@contoh.com" /></div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-field"><label>No. HP / WhatsApp</label><input type="tel" id="pe-phone" placeholder="08xxxxxxxxxx" /></div>
+                    <div class="form-field"><label>Username</label><input type="text" id="pe-username" placeholder="username unik" /></div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-field"><label>Alamat Lengkap</label><input type="text" id="pe-address" placeholder="Jl. Contoh No. 1, Kota" /></div>
+                  </div>
+                  <div style="display:flex;justify-content:flex-end;margin-top:.5rem">
+                    <button class="btn btn-primary" onclick="saveProfileInfo()">Simpan Perubahan</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-panel" id="ptab-change-pass">
+              <div class="card">
+                <div class="card-header"><h3>Ganti Password</h3></div>
+                <div class="card-body">
+                  <div class="form-row">
+                    <div class="form-field"><label>Password Saat Ini</label><input type="password" id="cp-current" placeholder="Password lama" /></div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-field">
+                      <label>Password Baru</label>
+                      <input type="password" id="cp-new" placeholder="Min. 6 karakter" oninput="checkPassStrength(this.value)" />
+                      <div class="pass-strength"><div class="pass-strength-bar" id="pass-strength-bar"></div></div>
+                      <div style="font-size:11px;color:var(--text-muted);margin-top:4px" id="pass-strength-label"></div>
+                    </div>
+                    <div class="form-field"><label>Konfirmasi Password Baru</label><input type="password" id="cp-confirm" placeholder="Ulangi password baru" /></div>
+                  </div>
+                  <div style="display:flex;justify-content:flex-end;margin-top:.5rem">
+                    <button class="btn btn-primary" onclick="doChangePassword()">Ganti Password</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MY STOCK (STAFF) -->
+      <div class="page-section" id="sec-my-stock">
+        <div class="page-header">
+          <h2>Stok Booth Saya</h2>
+          <p id="my-booth-label">-</p>
+        </div>
+        <div class="card">
+          <div class="card-body" id="my-stock-detail"></div>
+        </div>
+      </div>
+
+      <!-- MY SALES (STAFF) -->
+      <div class="page-section" id="sec-my-sales">
+        <div class="page-header">
+          <h2>Penjualan Hari Ini</h2>
+          <p>Riwayat transaksi booth kamu</p>
+        </div>
+        <div class="metric-grid" id="my-sales-metrics"></div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Waktu</th><th>Rasa</th><th>Qty</th><th>Metode</th><th>Subtotal</th></tr></thead>
+              <tbody id="my-sales-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===== MODALS ===== -->
+
+<!-- Add Booth -->
+<!-- Add Booth -->
+<div class="modal-overlay hidden" id="modal-add-booth">
+  <div class="modal-box">
+    <div class="modal-header"><h3>Tambah Booth Baru</h3><button class="modal-close" onclick="closeModal('modal-add-booth')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-field"><label>Nama Booth *</label><input type="text" id="nb-name" placeholder="contoh: Booth Stadion" /></div></div>
+      <div class="form-row"><div class="form-field"><label>Lokasi *</label><input type="text" id="nb-loc" placeholder="contoh: Area Selatan Stadion" /></div></div>
+      <div class="form-row"><div class="form-field"><label>Penanggung Jawab</label><input type="text" id="nb-pic" placeholder="contoh: Rina Agustin" /></div></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-add-booth')">Batal</button><button class="btn btn-primary" onclick="addBooth()">Simpan</button></div>
+  </div>
+</div>
+
+<!-- Edit Booth -->
+<div class="modal-overlay hidden" id="modal-edit-booth">
+  <div class="modal-box">
+    <div class="modal-header"><h3>Edit Booth</h3><button class="modal-close" onclick="closeModal('modal-edit-booth')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="eb-id" />
+      <div class="form-row"><div class="form-field"><label>Nama Booth *</label><input type="text" id="eb-name" placeholder="Nama booth" /></div></div>
+      <div class="form-row"><div class="form-field"><label>Lokasi *</label><input type="text" id="eb-loc" placeholder="Lokasi booth" /></div></div>
+      <div class="form-row"><div class="form-field"><label>Penanggung Jawab</label><input type="text" id="eb-pic" placeholder="Nama penanggung jawab" /></div></div>
+      <div class="form-row"><div class="form-field"><label>Status</label>
+        <select id="eb-active"><option value="1">Aktif</option><option value="0">Nonaktif</option></select>
+      </div></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-edit-booth')">Batal</button><button class="btn btn-primary" onclick="saveBooth()">Simpan Perubahan</button></div>
+  </div>
+</div>
+
+<!-- Edit Stock per Booth per Flavor -->
+<div class="modal-overlay hidden" id="modal-edit-stock">
+  <div class="modal-box" style="max-width:420px">
+    <div class="modal-header"><h3 id="edit-stock-title">Edit Stok</h3><button class="modal-close" onclick="closeModal('modal-edit-stock')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="es-booth-id" />
+      <input type="hidden" id="es-flavor-id" />
+      <div style="text-align:center;margin-bottom:1rem">
+        <div style="font-size:36px" id="es-icon">&#x1F375;</div>
+        <div style="font-size:15px;font-weight:600;color:var(--text-primary);margin-top:4px" id="es-flavor-name"></div>
+        <div style="font-size:12px;color:var(--text-muted)" id="es-booth-name"></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;align-items:center;margin-bottom:1rem">
+        <button class="btn btn-ghost btn-sm" onclick="adjustStockInput(-10)">&#x2212;10</button>
+        <button class="btn btn-ghost btn-sm" onclick="adjustStockInput(-1)">&#x2212;1</button>
+        <input type="number" id="es-qty" min="0" style="width:90px;text-align:center;font-size:22px;font-weight:700;padding:8px" />
+        <button class="btn btn-ghost btn-sm" onclick="adjustStockInput(1)">+1</button>
+        <button class="btn btn-ghost btn-sm" onclick="adjustStockInput(10)">+10</button>
+      </div>
+      <p style="font-size:12px;color:var(--text-muted);text-align:center">Set jumlah stok secara langsung (nilai absolut)</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-stock')">Batal</button>
+      <button class="btn btn-amber btn-sm" onclick="saveStockEdit()">&#x1F4BE; Simpan Stok</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add / Edit User Modal -->
+<div class="modal-overlay hidden" id="modal-add-user">
+  <div class="modal-box" style="max-width:520px">
+    <div class="modal-header">
+      <h3 id="modal-user-title">Tambah User Baru</h3>
+      <button class="modal-close" onclick="closeModal('modal-add-user')">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="nu-id" value="" />
+      <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem">Informasi Akun</div>
+      <div class="form-row">
+        <div class="form-field"><label>Nama Lengkap *</label><input type="text" id="nu-name" placeholder="contoh: Andi Prasetyo" /></div>
+        <div class="form-field"><label>Username *</label><input type="text" id="nu-user" placeholder="username unik" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>Password *</label><input type="password" id="nu-pass" placeholder="Min. 6 karakter" oninput="checkPassStrengthNew(this.value)" /></div>
+        <div class="form-field">
+          <label>Peran *</label>
+          <select id="nu-role" onchange="toggleBoothField()">
+            <option value="staff">Karyawan</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row" id="nu-booth-wrap">
+        <div class="form-field"><label>Booth *</label><select id="nu-booth"></select></div>
+      </div>
+      <div class="pass-strength" style="margin-bottom:.75rem"><div class="pass-strength-bar" id="pass-strength-bar-new"></div></div>
+      <div class="sep"></div>
+      <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem">Informasi Pribadi</div>
+      <div class="form-row">
+        <div class="form-field"><label>No. HP / WhatsApp</label><input type="tel" id="nu-phone" placeholder="08xxxxxxxxxx" /></div>
+        <div class="form-field"><label>Email</label><input type="email" id="nu-email" placeholder="email@contoh.com" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>Alamat Lengkap</label><input type="text" id="nu-address" placeholder="Jl. Contoh No. 1, Kota" /></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-user')">Batal</button>
+      <button class="btn btn-primary" id="btn-save-user" onclick="saveUser()">Simpan User</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reset Password (Admin resets other user's password) -->
+<div class="modal-overlay hidden" id="modal-reset-pass">
+  <div class="modal-box" style="max-width:420px">
+    <div class="modal-header">
+      <h3>Reset Password</h3>
+      <button class="modal-close" onclick="closeModal('modal-reset-pass')">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:14px;color:var(--text-secondary);margin-bottom:1rem">
+        Reset password untuk: <strong id="rp-username-label">-</strong>
+      </div>
+      <input type="hidden" id="rp-uid" />
+      <div class="form-field" style="margin-bottom:1rem">
+        <label>Password Baru *</label>
+        <input type="password" id="rp-new" placeholder="Min. 6 karakter" oninput="checkPassStrengthReset(this.value)" />
+        <div class="pass-strength" style="margin-top:6px"><div class="pass-strength-bar" id="pass-strength-bar-reset"></div></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px" id="pass-strength-label-reset"></div>
+      </div>
+      <div class="form-field">
+        <label>Konfirmasi Password Baru *</label>
+        <input type="password" id="rp-confirm" placeholder="Ulangi password baru" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-reset-pass')">Batal</button>
+      <button class="btn btn-primary" onclick="doResetPassword()">Reset Password</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Staff (legacy, kept for compatibility - hidden, replaced by modal-add-user) -->
+<div class="modal-overlay hidden" id="modal-add-staff">
+  <div class="modal-box">
+    <div class="modal-header"><h3>Tambah Karyawan</h3><button class="modal-close" onclick="closeModal('modal-add-staff')">&#x2715;</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-field"><label>Nama Lengkap</label><input type="text" id="ns-name" /></div>
+        <div class="form-field"><label>Username</label><input type="text" id="ns-user" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>Password</label><input type="password" id="ns-pass" /></div>
+        <div class="form-field"><label>Booth</label><select id="ns-booth"></select></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-add-staff')">Batal</button><button class="btn btn-primary" onclick="addStaff()">Simpan</button></div>
+  </div>
+</div>
+
+<!-- Add Flavor -->
+<div class="modal-overlay hidden" id="modal-add-flavor">
+  <div class="modal-box">
+    <div class="modal-header"><h3>Tambah Rasa Baru</h3><button class="modal-close" onclick="closeModal('modal-add-flavor')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-field" style="max-width:90px">
+          <label>Icon / Emoji</label>
+          <input type="text" id="af-icon" placeholder="🍋" maxlength="4" style="text-align:center;font-size:22px" />
+        </div>
+        <div class="form-field">
+          <label>Nama Rasa</label>
+          <input type="text" id="af-name" placeholder="contoh: Teh Mangga" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Harga (Rp)</label>
+          <input type="number" id="af-price" placeholder="10000" min="0" step="500" />
+        </div>
+        <div class="form-field">
+          <label>Stok Awal (semua booth)</label>
+          <input type="number" id="af-stock" placeholder="0" min="0" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-add-flavor')">Batal</button><button class="btn btn-primary" onclick="addFlavor()">Simpan</button></div>
+  </div>
+</div>
+
+<!-- Edit Flavor -->
+<div class="modal-overlay hidden" id="modal-edit-flavor">
+  <div class="modal-box">
+    <div class="modal-header"><h3>Edit Rasa</h3><button class="modal-close" onclick="closeModal('modal-edit-flavor')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="ef-id" />
+      <div class="form-row">
+        <div class="form-field" style="max-width:90px">
+          <label>Icon / Emoji</label>
+          <input type="text" id="ef-icon" maxlength="4" style="text-align:center;font-size:22px" />
+        </div>
+        <div class="form-field">
+          <label>Nama Rasa</label>
+          <input type="text" id="ef-name" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Harga (Rp)</label>
+          <input type="number" id="ef-price" min="0" step="500" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-edit-flavor')">Batal</button><button class="btn btn-primary" onclick="saveFlavor()">Simpan Perubahan</button></div>
+  </div>
+</div>
+
+<!-- Restock -->
+<div class="modal-overlay hidden" id="modal-restock">
+  <div class="modal-box">
+    <div class="modal-header"><h3>Isi Ulang Stok</h3><button class="modal-close" onclick="closeModal('modal-restock')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-field"><label>Booth</label><select id="rs-booth"></select></div>
+        <div class="form-field"><label>Rasa</label><select id="rs-flavor"></select></div>
+      </div>
+      <div class="form-row"><div class="form-field"><label>Jumlah Tambah</label><input type="number" id="rs-qty" min="1" placeholder="0" /></div></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-restock')">Batal</button><button class="btn btn-primary" onclick="doRestock()">Simpan</button></div>
+  </div>
+</div>
+
+<!-- Receipt Modal -->
+<div class="modal-overlay hidden" id="modal-receipt">
+  <div class="modal-box" style="max-width:400px">
+    <div class="modal-header"><h3>Struk Pembayaran</h3><button class="modal-close" onclick="closeModal('modal-receipt');clearCart()">✕</button></div>
+    <div class="modal-body" id="receipt-content"></div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="closeModal('modal-receipt');clearCart()">Selesai</button></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ============================================================
+//  Aphelion Tea — Frontend with PHP/MySQL API Integration
+// ============================================================
+
+// ===== API CONFIG =====
+const API_BASE = './api';  // Ganti jika folder berbeda
+
+async function api(endpoint, method = 'GET', body = null) {
+  const opts = {
+    method,
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  try {
+    const res  = await fetch(API_BASE + endpoint, opts);
+    const data = await res.json();
+    return data;
+  } catch (e) {
+    console.error('API Error:', e);
+    return { success: false, message: 'Koneksi API gagal. Pastikan server PHP aktif.' };
+  }
+}
+
+// ===== STATE =====
+const FMT = v => 'Rp ' + Number(v).toLocaleString('id-ID');
+const TIME = () => { const d=new Date(); return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0'); };
+
+let currentUser = null;
+let boothChart = null, paymentChart = null, revenue7Chart = null, flavorPieChart = null;
+let paymentMethod = 'cash';
+let cart = [];
+
+const state = {
+  users: [
+    { id:1, name:'Administrator', username:'admin', password:'admin123', role:'admin', boothId:null, phone:'081234567890', address:'Jl. Merdeka No. 1, Kota', email:'admin@apheliontea.id', joinDate:'2024-01-01', active:true },
+    { id:2, name:'Siti Rahayu', username:'booth1', password:'pass123', role:'staff', boothId:1, phone:'082233445566', address:'Jl. Melati No. 12, Pasuruan', email:'siti@apheliontea.id', joinDate:'2024-03-15', active:true },
+    { id:3, name:'Budi Santoso', username:'booth2', password:'pass123', role:'staff', boothId:2, phone:'083344556677', address:'Jl. Anggrek No. 5, Pasuruan', email:'budi@apheliontea.id', joinDate:'2024-03-20', active:true },
+    { id:4, name:'Dewi Puspita', username:'booth3', password:'pass123', role:'staff', boothId:3, phone:'084455667788', address:'Jl. Mawar No. 8, Pasuruan', email:'dewi@apheliontea.id', joinDate:'2024-04-01', active:true },
+  ],
+  booths: [
+    { id:1, name:'Booth Alun-alun', location:'Alun-alun Kota', pic:'Siti Rahayu', active:true },
+    { id:2, name:'Booth Pasar Seni', location:'Pasar Seni Lama', pic:'Budi Santoso', active:true },
+    { id:3, name:'Booth Kampus', location:'Depan Kampus Barat', pic:'Dewi Puspita', active:true },
+  ],
+  flavors: [
+    { id:1, name:'Teh Lemon Original', icon:'🍋', price:8000 },
+    { id:2, name:'Teh Lychee', icon:'🍈', price:9000 },
+    { id:3, name:'Teh Strawberry', icon:'🍓', price:9000 },
+    { id:4, name:'Teh Passion Fruit', icon:'🟡', price:10000 },
+    { id:5, name:'Teh Peach', icon:'🍑', price:10000 },
+    { id:6, name:'Teh Matcha', icon:'🍵', price:11000 },
+    { id:7, name:'Teh Taro', icon:'🫐', price:11000 },
+    { id:8, name:'Teh Original Tawar', icon:'🫖', price:7000 },
+  ],
+  stock: {
+    1:{ 1:40,2:25,3:30,4:20,5:15,6:18,7:12,8:50 },
+    2:{ 1:35,2:20,3:22,4:18,5:20,6:10,7:8,8:40 },
+    3:{ 1:50,2:30,3:28,4:25,5:22,6:15,7:10,8:60 },
+  },
+  transactions: [
+    { id:1,boothId:1,items:[{flavorId:1,qty:3,price:8000}],payment:'cash',total:24000,time:'08:15',date:'2025-04-09' },
+    { id:2,boothId:2,items:[{flavorId:3,qty:2,price:9000}],payment:'qris',total:18000,time:'09:00',date:'2025-04-09' },
+    { id:3,boothId:1,items:[{flavorId:6,qty:1,price:11000}],payment:'cash',total:11000,time:'09:30',date:'2025-04-09' },
+    { id:4,boothId:3,items:[{flavorId:2,qty:4,price:9000}],payment:'qris',total:36000,time:'10:00',date:'2025-04-09' },
+    { id:5,boothId:2,items:[{flavorId:5,qty:2,price:10000},{flavorId:1,qty:1,price:8000}],payment:'cash',total:28000,time:'10:45',date:'2025-04-09' },
+    { id:6,boothId:3,items:[{flavorId:1,qty:5,price:8000}],payment:'qris',total:40000,time:'11:00',date:'2025-04-09' },
+    { id:7,boothId:1,items:[{flavorId:4,qty:2,price:10000}],payment:'cash',total:20000,time:'11:30',date:'2025-04-09' },
+    { id:8,boothId:2,items:[{flavorId:7,qty:1,price:11000}],payment:'qris',total:11000,time:'12:00',date:'2025-04-09' },
+  ],
+  nextTxId: 9,
+  nextUserId: 5,
+  nextBoothId: 4,
+};
+
+// Simulated 7-day revenue (prior days)
+const revenue7days = [
+  { date:'03 Apr',rev:320000 },
+  { date:'04 Apr',rev:415000 },
+  { date:'05 Apr',rev:380000 },
+  { date:'06 Apr',rev:490000 },
+  { date:'07 Apr',rev:445000 },
+  { date:'08 Apr',rev:510000 },
+  { date:'09 Apr (Hari ini)',rev:0 },
+];
+
+// ===== LOAD STATE FROM API =====
+async function loadAllState() {
+  const [usersRes, boothsRes, flavorsRes, stockRes, txRes] = await Promise.all([
+    api('/users.php'),
+    api('/booths.php'),
+    api('/flavors.php'),
+    api('/stock.php'),
+    api('/transactions.php?date_from=' + todayISO() + '&date_to=' + todayISO()),
+  ]);
+  if (usersRes.success)  state.users        = usersRes.data;
+  if (boothsRes.success) state.booths       = boothsRes.data.map(b=>({...b, id:+b.id}));
+  if (flavorsRes.success) state.flavors     = flavorsRes.data.map(f=>({...f, id:+f.id, price:+f.price}));
+  if (stockRes.success) {
+    // Convert {booth_id: {flavor_id: qty}} with int keys
+    state.stock = {};
+    for (const [bid, fmap] of Object.entries(stockRes.data)) {
+      state.stock[+bid] = {};
+      for (const [fid, qty] of Object.entries(fmap)) {
+        state.stock[+bid][+fid] = +qty;
+      }
+    }
+  }
+  if (txRes.success) {
+    state.transactions = txRes.data.map(t=>({
+      id: +t.id,
+      boothId: +t.booth_id,
+      payment: t.payment,
+      total: +t.total,
+      time: t.tx_time?.substring(0,5)||'',
+      date: t.tx_date,
+      items: (t.items||[]).map(i=>({ flavorId:+i.flavor_id, qty:+i.qty, price:+i.price })),
+    }));
+  }
+  state.nextTxId  = state.transactions.length ? Math.max(...state.transactions.map(t=>t.id)) + 1 : 1;
+  state.nextUserId  = state.users.length ? Math.max(...state.users.map(u=>+u.id)) + 1 : 1;
+  state.nextBoothId = state.booths.length ? Math.max(...state.booths.map(b=>+b.id)) + 1 : 1;
+}
+
+function todayISO() { return new Date().toISOString().split('T')[0]; }
+
+// ===== CHECK SESSION ON LOAD =====
+(async () => {
+  const res = await api('/auth.php?action=me');
+  if (res.success) {
+    currentUser = res.data;
+    await loadAllState();
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('app').style.flexDirection = 'column';
+    setupUI();
+    navTo('dashboard');
+  }
+})();
+const getFlavorById = id => state.flavors.find(f=>+f.id===+id);
+const getBoothById  = id => state.booths.find(b=>+b.id===+id);
+const getUserById   = id => state.users.find(u=>+u.id===+id);
+const boothRevenue = (bid, txs=state.transactions) => txs.filter(t=>t.boothId===bid).reduce((s,t)=>s+t.total,0);
+const boothQty = (bid, txs=state.transactions) => txs.filter(t=>t.boothId===bid).reduce((s,t)=>s+t.items.reduce((a,i)=>a+i.qty,0),0);
+const totalFlavorSold = fid => state.transactions.reduce((s,t)=>s+t.items.filter(i=>i.flavorId===fid).reduce((a,i)=>a+i.qty,0),0);
+const totalStockAll = fid => state.booths.reduce((s,b)=>s+(state.stock[b.id]?.[fid]||0),0);
+
+function toast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = type;
+  setTimeout(()=>t.className='',2800);
+}
+
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+// ===== LOGIN =====
+async function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value.trim();
+  if (!u || !p) { document.getElementById('login-error').style.display='block'; return; }
+  document.getElementById('login-error').textContent = 'Memproses...';
+  document.getElementById('login-error').style.display = 'block';
+  const res = await api('/auth.php?action=login', 'POST', { username: u, password: p });
+  if (!res.success) {
+    document.getElementById('login-error').textContent = res.message || 'Username atau password salah.';
+    return;
+  }
+  document.getElementById('login-error').style.display = 'none';
+  currentUser = res.data;
+  await loadAllState();
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('app').style.flexDirection = 'column';
+  setupUI();
+  navTo('dashboard');
+}
+
+async function doLogout() {
+  await api('/auth.php?action=logout');
+  currentUser = null;
+  cart = [];
+  state.users=[]; state.booths=[]; state.flavors=[]; state.stock={}; state.transactions=[];
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-user').value='';
+  document.getElementById('login-pass').value='';
+}
+
+// ===== UI SETUP =====
+function setupUI() {
+  const isAdmin = currentUser.role==='admin';
+  document.getElementById('topbar-name').textContent = currentUser.name;
+  document.getElementById('topbar-avatar').textContent = currentUser.name.charAt(0).toUpperCase();
+  document.getElementById('topbar-role').textContent = isAdmin ? 'Admin' : 'Karyawan';
+  document.getElementById('nav-admin-section').style.display = isAdmin ? 'block' : 'none';
+  document.getElementById('nav-staff-section').style.display = isAdmin ? 'none' : 'block';
+
+  // POS booth selector
+  const wrap = document.getElementById('pos-booth-selector-wrap');
+  if (isAdmin) {
+    wrap.innerHTML = '<select id="pos-booth-sel" style="padding:8px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;outline:none" onchange="renderFlavorTiles()">' +
+      state.booths.map(b=>`<option value="${b.id}">${b.name}</option>`).join('') + '</select>';
+  } else {
+    wrap.innerHTML = `<span class="badge badge-green">${getBoothById(currentUser.boothId)?.name||''}</span>`;
+  }
+
+  // Populate modal dropdowns
+  const boothOpts = state.booths.map(b=>`<option value="${b.id}">${b.name}</option>`).join('');
+  const flavorOpts = state.flavors.map(f=>`<option value="${f.id}">${f.icon} ${f.name}</option>`).join('');
+  const nsb = document.getElementById('ns-booth');
+  if (nsb) nsb.innerHTML = '<option value="">Pilih booth</option>' + boothOpts;
+  const rsb = document.getElementById('rs-booth');
+  if (rsb) rsb.innerHTML = '<option value="">Pilih booth</option>' + boothOpts;
+  const rsf = document.getElementById('rs-flavor');
+  if (rsf) rsf.innerHTML = '<option value="">Pilih rasa</option>' + flavorOpts;
+  const fb = document.getElementById('filter-booth');
+  if (fb) fb.innerHTML = '<option value="">Semua Booth</option>' + boothOpts;
+}
+
+// ===== NAVIGATION =====
+function navTo(page) {
+  document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  const sec = document.getElementById('sec-'+page);
+  if (sec) sec.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b=>{
+    if (b.getAttribute('onclick')?.includes("'"+page+"'")) b.classList.add('active');
+  });
+  const renders = {
+    dashboard: renderDashboard,
+    pos: renderPOS,
+    booths: renderBooths,
+    staff: renderStaff,
+    stock: renderStock,
+    finance: renderFinance,
+    report: renderReport,
+    'my-stock': renderMyStock,
+    'my-sales': renderMySales,
+    users: renderUsers,
+    profile: renderProfile,
+  };
+  if (renders[page]) renders[page]();
+}
+
+// ===== DASHBOARD =====
+function renderDashboard() {
+  const isAdmin = currentUser.role==='admin';
+  const txs = isAdmin ? state.transactions : state.transactions.filter(t=>+t.boothId===(+(currentUser.booth_id||currentUser.boothId||0)));
+  const totalRev = txs.reduce((s,t)=>s+t.total,0);
+  const totalQty = txs.reduce((s,t)=>s+t.items.reduce((a,i)=>a+i.qty,0),0);
+  const cashRev = txs.filter(t=>t.payment==='cash').reduce((s,t)=>s+t.total,0);
+  const qrisRev = txs.filter(t=>t.payment==='qris').reduce((s,t)=>s+t.total,0);
+
+  document.getElementById('dash-subtitle').textContent = isAdmin
+    ? 'Semua booth — ringkasan performa hari ini'
+    : `Booth kamu: ${getBoothById(currentUser.boothId)?.name}`;
+
+  document.getElementById('dash-metrics').innerHTML = `
+    <div class="metric-card"><div class="m-icon green">💰</div><div class="m-label">Total Pendapatan</div><div class="m-value">${FMT(totalRev)}</div><div class="m-sub">Hari ini</div></div>
+    <div class="metric-card"><div class="m-icon amber">🧾</div><div class="m-label">Gelas Terjual</div><div class="m-value">${totalQty}</div><div class="m-sub">${txs.length} transaksi</div></div>
+    <div class="metric-card"><div class="m-icon green">💵</div><div class="m-label">Pendapatan Cash</div><div class="m-value">${FMT(cashRev)}</div><div class="m-sub">${txs.filter(t=>t.payment==='cash').length} transaksi</div></div>
+    <div class="metric-card"><div class="m-icon blue">📱</div><div class="m-label">Pendapatan QRIS</div><div class="m-value">${FMT(qrisRev)}</div><div class="m-sub">${txs.filter(t=>t.payment==='qris').length} transaksi</div></div>
+    ${isAdmin?`<div class="metric-card"><div class="m-icon amber">🏪</div><div class="m-label">Booth Aktif</div><div class="m-value">${state.booths.length}</div><div class="m-sub">Semua beroperasi</div></div>`:''}
+  `;
+
+  // Booth chart
+  if (boothChart) boothChart.destroy();
+  const ctx1 = document.getElementById('chartBooth').getContext('2d');
+  const boothLabels = (isAdmin ? state.booths : state.booths.filter(b=>b.id===currentUser.boothId)).map(b=>b.name.replace('Booth ',''));
+  const boothData = (isAdmin ? state.booths : state.booths.filter(b=>b.id===currentUser.boothId)).map(b=>boothRevenue(b.id, txs));
+  boothChart = new Chart(ctx1, {
+    type:'bar', data:{ labels:boothLabels, datasets:[{ label:'Pendapatan', data:boothData, backgroundColor:['#2DBF87','#5DCAA5','#9FE1CB','#C2EBDA'], borderRadius:8 }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{ticks:{callback:v=>'Rp'+(v/1000).toFixed(0)+'k',font:{size:11}},grid:{color:'rgba(0,0,0,0.04)'}}, x:{grid:{display:false}} } }
+  });
+
+  // Payment chart
+  if (paymentChart) paymentChart.destroy();
+  const ctx2 = document.getElementById('chartPayment').getContext('2d');
+  paymentChart = new Chart(ctx2, {
+    type:'doughnut',
+    data:{ labels:['Cash','QRIS'], datasets:[{ data:[cashRev,qrisRev], backgroundColor:['#2DBF87','#5B8DEF'], borderWidth:0, hoverOffset:6 }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ font:{size:12}, padding:16 } } }, cutout:'65%' }
+  });
+
+  // Top flavors
+  const fCount = {};
+  txs.forEach(t=>t.items.forEach(i=>{ fCount[i.flavorId]=(fCount[i.flavorId]||0)+i.qty; }));
+  const sorted = Object.entries(fCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxQ = sorted[0]?.[1]||1;
+  const colors = ['#2DBF87','#5DCAA5','#9FE1CB','#C2EBDA','#E8F7F1'];
+  document.getElementById('top-flavors-list').innerHTML = sorted.map(([fid,qty],i)=>{
+    const f = getFlavorById(Number(fid));
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <span style="font-size:20px;width:28px">${f?.icon}</span>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500;margin-bottom:4px">${f?.name}</div>
+      <div style="background:var(--gray-100);border-radius:4px;height:6px;overflow:hidden"><div style="width:${Math.round(qty/maxQ*100)}%;height:100%;border-radius:4px;background:${colors[i]}"></div></div></div>
+      <span style="font-size:13px;font-weight:600;color:var(--green-500);min-width:60px;text-align:right">${qty} gelas</span>
+    </div>`;
+  }).join('') || '<p style="color:var(--text-muted);font-size:13px">Belum ada data penjualan.</p>';
+}
+
+// ===== POS =====
+function getPOSBoothId() {
+  if (currentUser.role==='staff') return currentUser.boothId;
+  const sel = document.getElementById('pos-booth-sel');
+  return sel ? Number(sel.value) : state.booths[0]?.id;
+}
+
+function renderPOS() {
+  const bid = getPOSBoothId();
+  const booth = getBoothById(bid);
+  document.getElementById('pos-booth-label').textContent = `Booth: ${booth?.name||''} — ${booth?.location||''}`;
+  renderFlavorTiles();
+  renderCart();
+}
+
+function renderFlavorTiles() {
+  const bid = getPOSBoothId();
+  const search = (document.getElementById('flavor-search')?.value||'').toLowerCase();
+  const container = document.getElementById('flavor-tiles');
+  container.innerHTML = state.flavors.filter(f=>f.name.toLowerCase().includes(search)).map(f=>{
+    const stock = state.stock[bid]?.[f.id]||0;
+    const disabled = stock===0;
+    return `<div class="flavor-tile${disabled?' disabled':''}" onclick="${disabled?'':'addToCart('+f.id+')'}">
+      <span class="ft-icon">${f.icon}</span>
+      <div class="ft-name">${f.name}</div>
+      <div class="ft-price">${FMT(f.price)}</div>
+      <div class="ft-stock" style="color:${stock<10?'var(--red-600)':stock<20?'var(--amber-600)':'var(--text-muted)'}">Stok: ${stock}</div>
+    </div>`;
+  }).join('');
+}
+
+function addToCart(flavorId) {
+  const existing = cart.find(c=>c.flavorId===flavorId);
+  const bid = getPOSBoothId();
+  const avail = state.stock[bid]?.[flavorId]||0;
+  const inCart = existing?.qty||0;
+  if (inCart>=avail) { toast('Stok tidak mencukupi!','error'); return; }
+  if (existing) existing.qty++;
+  else { const f=getFlavorById(flavorId); cart.push({ flavorId, qty:1, price:f.price, name:f.name, icon:f.icon }); }
+  renderCart();
+}
+
+function changeQty(flavorId, delta) {
+  const item = cart.find(c=>c.flavorId===flavorId);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty<=0) cart = cart.filter(c=>c.flavorId!==flavorId);
+  renderCart();
+}
+
+function renderCart() {
+  const container = document.getElementById('cart-items');
+  if (!cart.length) { container.innerHTML='<div class="cart-empty">Pilih rasa untuk memulai...</div>'; }
+  else {
+    container.innerHTML = cart.map(item=>`
+      <div class="cart-item">
+        <div><div class="ci-name">${item.icon} ${item.name}</div><div class="ci-sub">${FMT(item.price)} / gelas</div></div>
+        <div class="ci-controls">
+          <button class="qty-btn" onclick="changeQty(${item.flavorId},-1)">−</button>
+          <span class="qty-val">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${item.flavorId},1)">+</button>
+          <span class="ci-total">${FMT(item.price*item.qty)}</span>
+        </div>
+      </div>`).join('');
+  }
+  const total = cart.reduce((s,c)=>s+c.price*c.qty,0);
+  document.getElementById('cart-total-display').textContent = FMT(total);
+  updateChange();
+}
+
+function clearCart() { cart=[]; renderCart(); renderFlavorTiles(); }
+
+function setPayment(method) {
+  paymentMethod = method;
+  document.querySelectorAll('.payment-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.payment-btn[onclick="setPayment('${method}')"]`).classList.add('active');
+  document.getElementById('cash-input-area').style.display = method==='cash'?'block':'none';
+}
+
+function updateChange() {
+  const total = cart.reduce((s,c)=>s+c.price*c.qty,0);
+  const received = Number(document.getElementById('cash-received')?.value)||0;
+  const change = received - total;
+  const el = document.getElementById('change-display');
+  if (el) { el.textContent = FMT(Math.max(0,change)); el.style.color = change<0?'var(--red-600)':'var(--green-600)'; }
+}
+
+async function processPayment() {
+  if (!cart.length) { toast('Keranjang masih kosong!','error'); return; }
+  const bid = getPOSBoothId();
+  const total = cart.reduce((s,c)=>s+c.price*c.qty,0);
+  if (paymentMethod==='cash') {
+    const received = Number(document.getElementById('cash-received').value)||0;
+    if (received<total) { toast('Uang yang diterima kurang!','error'); return; }
+  }
+  const items = cart.map(c=>({ flavor_id:c.flavorId, qty:c.qty, price:c.price }));
+  const res = await api('/transactions.php','POST',{ booth_id:bid, payment:paymentMethod, total, items });
+  if (!res.success) { toast(res.message||'Transaksi gagal!','error'); return; }
+  // Update stok lokal
+  cart.forEach(item=>{ if (state.stock[bid]) state.stock[bid][item.flavorId]=(state.stock[bid][item.flavorId]||0)-item.qty; });
+  // Simpan ke state lokal
+  const tx = { id:res.data.id, boothId:bid, items:cart.map(c=>({flavorId:c.flavorId,qty:c.qty,price:c.price})), payment:paymentMethod, total, time:TIME(), date:todayISO() };
+  state.transactions.push(tx);
+  revenue7days[6].rev += total;
+  showReceipt(tx);
+  toast('Transaksi tersimpan ke database!');
+}
+
+function showReceipt(tx) {
+  const booth = getBoothById(tx.boothId);
+  const received = paymentMethod==='cash' ? Number(document.getElementById('cash-received').value)||0 : tx.total;
+  const change = received - tx.total;
+  let content = `<div class="receipt">
+    <div class="receipt-header">
+      <div style="font-size:24px;margin-bottom:4px">🍵</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--green-600)">Aphelion Tea</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${booth?.name} — ${booth?.location}</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px">No. ${String(tx.id).padStart(4,'0')} | ${tx.time} | ${tx.date}</div>
+    </div>`;
+  content += tx.items.map(item=>{ const f=getFlavorById(item.flavorId); return `<div class="receipt-row"><span>${f?.icon} ${f?.name} x${item.qty}</span><span>${FMT(item.price*item.qty)}</span></div>`; }).join('');
+  content += `<hr class="receipt-divider">
+    <div class="receipt-row receipt-total"><span>Total</span><span>${FMT(tx.total)}</span></div>
+    <div class="receipt-row"><span style="color:var(--text-muted)">Metode</span><span class="badge ${tx.payment==='cash'?'badge-green':'badge-blue'}">${tx.payment==='cash'?'💵 Cash':'📱 QRIS'}</span></div>`;
+  if (tx.payment==='cash') content += `<div class="receipt-row"><span style="color:var(--text-muted)">Diterima</span><span>${FMT(received)}</span></div><div class="receipt-row"><span style="color:var(--text-muted)">Kembalian</span><span style="color:var(--green-600);font-weight:600">${FMT(change)}</span></div>`;
+  if (tx.payment==='qris') content += `<div class="qris-display"><div class="qris-code"><div style="font-size:28px">📱</div><div>QRIS Code</div><div style="font-size:10px;color:var(--text-muted)">${FMT(tx.total)}</div></div><div style="font-size:12px;color:var(--text-muted)">Scan untuk konfirmasi pembayaran</div></div>`;
+  content += `<div style="text-align:center;margin-top:1rem;font-size:11px;color:var(--text-muted);border-top:1px dashed var(--border);padding-top:.75rem">Terima kasih sudah mampir! ☕<br>Nikmati teh segar Aphelion</div></div>`;
+  document.getElementById('receipt-content').innerHTML = content;
+  openModal('modal-receipt');
+  toast('Pembayaran berhasil!');
+}
+
+// ===== BOOTHS =====
+// ===== BOOTH TAB SWITCH =====
+let activeBoothStockId = null;
+
+function switchBoothTab(tab) {
+  const listEl  = document.getElementById('booth-tab-list');
+  const stockEl = document.getElementById('booth-tab-stock');
+  const tabList  = document.getElementById('tab-booth-list');
+  const tabStock = document.getElementById('tab-booth-stock');
+  if (tab === 'list') {
+    listEl.style.display  = 'block';
+    stockEl.style.display = 'none';
+    tabList.classList.add('booth-tab-active');
+    tabStock.classList.remove('booth-tab-active');
+  } else {
+    listEl.style.display  = 'none';
+    stockEl.style.display = 'block';
+    tabList.classList.remove('booth-tab-active');
+    tabStock.classList.add('booth-tab-active');
+    renderBoothStockChips();
+    if (!activeBoothStockId && state.booths.length) {
+      selectBoothStock(state.booths[0].id);
+    } else if (activeBoothStockId) {
+      renderBoothStockTable(activeBoothStockId);
+    }
+  }
+}
+
+function renderBoothStockChips() {
+  const wrap = document.getElementById('booth-stock-tabs');
+  if (!wrap) return;
+  wrap.innerHTML = state.booths.map(b =>
+    `<button class="booth-stock-chip${activeBoothStockId===b.id?' active':''}" onclick="selectBoothStock(${b.id})">${b.name}</button>`
+  ).join('');
+}
+
+function selectBoothStock(boothId) {
+  activeBoothStockId = boothId;
+  renderBoothStockChips();
+  renderBoothStockTable(boothId);
+}
+
+function renderBoothStockTable(boothId) {
+  const booth = state.booths.find(b => b.id === boothId);
+  if (!booth) return;
+  document.getElementById('stock-booth-title').textContent = 'Stok ' + booth.name + ' — ' + (booth.location||'');
+  const tbody = document.getElementById('booth-stock-table-body');
+  if (!tbody) return;
+  tbody.innerHTML = state.flavors.map((f, i) => {
+    const s = state.stock[boothId]?.[f.id] || 0;
+    const pct = Math.min(s / 80 * 100, 100);
+    const color = s === 0 ? 'var(--red-400)' : s < 10 ? 'var(--amber-400)' : 'var(--green-400)';
+    const badge = s === 0 ? 'badge-red' : s < 10 ? 'badge-amber' : 'badge-green';
+    const label = s === 0 ? 'Habis' : s < 10 ? 'Menipis' : 'Aman';
+    return `<tr>
+      <td style="color:var(--text-muted);font-size:13px">${i+1}</td>
+      <td><span style="font-size:20px">${f.icon}</span></td>
+      <td><div style="font-weight:500;font-size:14px">${f.name}</div></td>
+      <td style="font-weight:600;color:var(--green-600)">${FMT(f.price)}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="stock-bar-wrap" style="width:80px"><div class="stock-bar" style="width:${Math.round(pct)}%;background:${color}"></div></div>
+          <span style="font-size:14px;font-weight:700;color:${s<10?'var(--red-600)':'var(--text-primary)'};min-width:28px">${s}</span>
+        </div>
+      </td>
+      <td><span class="badge ${badge}">${label}</span></td>
+      <td>
+        <div class="flex" style="gap:4px">
+          <button class="btn btn-ghost btn-sm" onclick="openEditStockModal(${boothId},${f.id})" title="Edit stok">✏️ Edit</button>
+          <button class="btn btn-primary btn-sm" onclick="openRestockSingle(${boothId},${f.id})" title="Isi ulang">+ Isi</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--text-muted)">Belum ada rasa.</td></tr>';
+}
+
+function openRestockForBooth() {
+  if (activeBoothStockId) {
+    document.getElementById('rs-booth').value = activeBoothStockId;
+  }
+  openModal('modal-restock');
+}
+
+function openRestockSingle(boothId, flavorId) {
+  document.getElementById('rs-booth').value = boothId;
+  document.getElementById('rs-flavor').value = flavorId;
+  document.getElementById('rs-qty').value = '';
+  openModal('modal-restock');
+}
+
+function openEditStockModal(boothId, flavorId) {
+  const booth  = state.booths.find(b => b.id === boothId);
+  const flavor = state.flavors.find(f => f.id === flavorId);
+  if (!booth || !flavor) return;
+  document.getElementById('es-booth-id').value   = boothId;
+  document.getElementById('es-flavor-id').value  = flavorId;
+  document.getElementById('es-icon').textContent  = flavor.icon;
+  document.getElementById('es-flavor-name').textContent = flavor.name;
+  document.getElementById('es-booth-name').textContent  = booth.name + ' — ' + (booth.location||'');
+  document.getElementById('es-qty').value = state.stock[boothId]?.[flavorId] || 0;
+  openModal('modal-edit-stock');
+}
+
+function adjustStockInput(delta) {
+  const el = document.getElementById('es-qty');
+  el.value = Math.max(0, (parseInt(el.value) || 0) + delta);
+}
+
+async function saveStockEdit() {
+  const boothId  = Number(document.getElementById('es-booth-id').value);
+  const flavorId = Number(document.getElementById('es-flavor-id').value);
+  const qty      = parseInt(document.getElementById('es-qty').value);
+  if (isNaN(qty) || qty < 0) { toast('Jumlah stok tidak valid!', 'error'); return; }
+  const res = await api('/stock.php?action=setstock', 'POST', { booth_id: boothId, flavor_id: flavorId, qty });
+  if (!res.success) { toast(res.message || 'Gagal simpan stok!', 'error'); return; }
+  if (!state.stock[boothId]) state.stock[boothId] = {};
+  state.stock[boothId][flavorId] = qty;
+  closeModal('modal-edit-stock');
+  toast('Stok berhasil diperbarui!');
+  renderBoothStockTable(boothId);
+  renderStock();
+}
+
+// ===== BOOTH CRUD =====
+function renderBooths() {
+  const tbody = document.getElementById('booth-table-body');
+  if (!tbody) return;
+  tbody.innerHTML = state.booths.map((b, i) => {
+    const statusBadge = b.active==1
+      ? '<span class="badge badge-green">Aktif</span>'
+      : '<span class="badge badge-red">Nonaktif</span>';
+    return `<tr>
+      <td>${i+1}</td>
+      <td><strong>${b.name}</strong></td>
+      <td style="color:var(--text-muted);font-size:13px">${b.location||'-'}</td>
+      <td>${b.pic||'-'}</td>
+      <td style="color:var(--green-600);font-weight:600">${FMT(boothRevenue(b.id))}</td>
+      <td>${statusBadge}</td>
+      <td>
+        <div class="flex" style="gap:4px">
+          <button class="btn btn-ghost btn-sm" onclick="openEditBoothModal(${b.id})">✏️ Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteBooth(${b.id})">🗑 Hapus</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--text-muted)">Belum ada booth.</td></tr>';
+}
+
+function openEditBoothModal(id) {
+  const b = state.booths.find(x => x.id === id);
+  if (!b) return;
+  document.getElementById('eb-id').value     = b.id;
+  document.getElementById('eb-name').value   = b.name;
+  document.getElementById('eb-loc').value    = b.location || '';
+  document.getElementById('eb-pic').value    = b.pic || '';
+  document.getElementById('eb-active').value = b.active != null ? String(b.active) : '1';
+  openModal('modal-edit-booth');
+}
+
+async function saveBooth() {
+  const id     = Number(document.getElementById('eb-id').value);
+  const name   = document.getElementById('eb-name').value.trim();
+  const loc    = document.getElementById('eb-loc').value.trim();
+  const pic    = document.getElementById('eb-pic').value.trim();
+  const active = Number(document.getElementById('eb-active').value);
+  if (!name || !loc) { toast('Nama dan lokasi wajib diisi!', 'error'); return; }
+  const res = await api('/booths.php?id=' + id, 'PUT', { name, location: loc, pic, active });
+  if (!res.success) { toast(res.message || 'Gagal update booth!', 'error'); return; }
+  const b = state.booths.find(x => x.id === id);
+  if (b) { b.name = name; b.location = loc; b.pic = pic; b.active = active; }
+  closeModal('modal-edit-booth');
+  toast('Booth berhasil diperbarui!');
+  setupUI();
+  renderBooths();
+  renderBoothStockChips();
+}
+
+async function deleteBooth(id) {
+  const b = state.booths.find(x => x.id === id);
+  if (!confirm(`Hapus booth "${b?.name}"? Semua stok terkait akan ikut terhapus.`)) return;
+  const res = await api('/booths.php?id=' + id, 'DELETE');
+  if (!res.success) { toast(res.message || 'Gagal hapus booth!', 'error'); return; }
+  state.booths = state.booths.filter(x => x.id !== id);
+  delete state.stock[id];
+  if (activeBoothStockId === id) activeBoothStockId = null;
+  toast('Booth berhasil dihapus.');
+  setupUI();
+  renderBooths();
+  renderBoothStockChips();
+}
+
+async function addBooth() {
+  const name = document.getElementById('nb-name').value.trim();
+  const loc  = document.getElementById('nb-loc').value.trim();
+  const pic  = document.getElementById('nb-pic')?.value.trim() || '-';
+  if (!name || !loc) { toast('Lengkapi nama dan lokasi!', 'error'); return; }
+  const res = await api('/booths.php', 'POST', { name, location: loc, pic });
+  if (!res.success) { toast(res.message, 'error'); return; }
+  const [boothsRes, stockRes] = await Promise.all([api('/booths.php'), api('/stock.php')]);
+  if (boothsRes.success) state.booths = boothsRes.data.map(b => ({...b, id: +b.id}));
+  if (stockRes.success) {
+    state.stock = {};
+    for (const [bid, fmap] of Object.entries(stockRes.data)) {
+      state.stock[+bid] = {};
+      for (const [fid, qty] of Object.entries(fmap)) state.stock[+bid][+fid] = +qty;
+    }
+  }
+  closeModal('modal-add-booth');
+  ['nb-name','nb-loc','nb-pic'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  toast('Booth berhasil ditambahkan!');
+  setupUI();
+  renderBooths();
+}
+
+// ===== STAFF =====
+function renderStaff() {
+  const tbody = document.getElementById('staff-table-body');
+  tbody.innerHTML = state.users.map((u,i)=>{
+    const bid = +(u.booth_id || u.boothId || 0);
+    return `
+    <tr>
+      <td>${i+1}</td>
+      <td>
+        <div style="font-weight:500">${u.name}</div>
+        <div style="font-size:11px;color:var(--text-muted)">${u.phone||'—'}</div>
+      </td>
+      <td><code style="background:var(--gray-100);padding:2px 8px;border-radius:6px;font-size:12px">${u.username}</code></td>
+      <td>${bid?getBoothById(bid)?.name||'—':'—'}</td>
+      <td><span class="badge ${u.role==='admin'?'badge-amber':'badge-blue'}">${u.role==='admin'?'Admin':'Karyawan'}</span></td>
+      <td><span class="badge badge-green">Aktif</span></td>
+      <td>
+        <div class="flex" style="gap:4px">
+          <button class="btn btn-ghost btn-sm" onclick="openEditUserModal(${u.id})">✏️ Edit</button>
+          <button class="btn btn-amber btn-sm" onclick="openResetPassModal(${u.id})">🔑 Reset</button>
+          ${u.role!=='admin'?`<button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">Hapus</button>`:''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function addStaff() {
+  // Delegate to the new user modal for consistency
+  openAddUserModal();
+  closeModal('modal-add-staff');
+}
+
+function removeStaff(id) {
+  deleteUser(id);
+}
+
+// ===== STOCK =====
+function renderStock() {
+  // Flavor table
+  const badge = document.getElementById('flavor-count-badge');
+  if (badge) badge.textContent = state.flavors.length + ' rasa terdaftar';
+
+  const tbody = document.getElementById('flavor-table-body');
+  if (tbody) {
+    tbody.innerHTML = state.flavors.map((f, i) => {
+      const ts = totalStockAll(f.id);
+      const statusColor = ts === 0 ? 'badge-red' : ts < 20 ? 'badge-amber' : 'badge-green';
+      const statusText = ts === 0 ? 'Habis' : ts < 20 ? 'Menipis' : 'Aman';
+      const terjual = totalFlavorSold(f.id);
+      return `<tr>
+        <td style="color:var(--text-muted);font-size:13px">${i+1}</td>
+        <td><span style="font-size:22px">${f.icon}</span></td>
+        <td>
+          <div style="font-weight:500;font-size:14px">${f.name}</div>
+          <div style="font-size:11px;color:var(--text-muted)">Terjual hari ini: ${terjual} gelas</div>
+        </td>
+        <td style="font-weight:600;color:var(--green-600)">${FMT(f.price)}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="stock-bar-wrap" style="width:70px"><div class="stock-bar" style="width:${Math.min(ts/150*100,100).toFixed(0)}%;background:${ts===0?'var(--red-400)':ts<20?'var(--amber-400)':'var(--green-400)'}"></div></div>
+            <span style="font-size:13px;font-weight:600;color:${ts<20?'var(--red-600)':'var(--text-primary)'}">${ts}</span>
+          </div>
+        </td>
+        <td><span class="badge ${statusColor}">${statusText}</span></td>
+        <td>
+          <div class="flex" style="gap:6px">
+            <button class="btn btn-ghost btn-sm" onclick="openEditFlavor(${f.id})" title="Edit">✏️ Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteFlavor(${f.id})" title="Hapus">🗑</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--text-muted)">Belum ada rasa terdaftar.</td></tr>';
+  }
+
+  const detail = document.getElementById('stock-booth-detail');
+  detail.innerHTML = state.booths.map(b=>`
+    <div style="margin-bottom:1.5rem">
+      <div style="font-weight:500;margin-bottom:8px">${b.name} <span style="font-size:12px;color:var(--text-muted)">${b.location}</span></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px">
+        ${state.flavors.map(f=>{
+          const s=state.stock[b.id]?.[f.id]||0,pct=Math.min(s/80*100,100);
+          const color=s<10?'var(--red-400)':s<25?'var(--amber-400)':'var(--green-400)';
+          return `<div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:13px">${f.icon}</span>
+            <span style="font-size:12px;color:var(--text-secondary);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</span>
+            <div class="stock-bar-wrap" style="width:60px"><div class="stock-bar" style="width:${Math.round(pct)}%;background:${color}"></div></div>
+            <span style="font-size:12px;font-weight:500;min-width:24px;text-align:right;color:${s<10?'var(--red-600)':'var(--text-primary)'}">${s}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`).join('');
+}
+
+async function doRestock() {
+  const bid = Number(document.getElementById('rs-booth').value);
+  const fid = Number(document.getElementById('rs-flavor').value);
+  const qty = Number(document.getElementById('rs-qty').value);
+  if (!bid||!fid||qty<1) { toast('Lengkapi semua field!','error'); return; }
+  const res = await api('/stock.php?action=restock','POST',{ booth_id:bid, flavor_id:fid, qty });
+  if (!res.success) { toast(res.message,'error'); return; }
+  if (!state.stock[bid]) state.stock[bid]={};
+  state.stock[bid][fid] = res.data.qty;
+  closeModal('modal-restock');
+  document.getElementById('rs-qty').value='';
+  toast(`Stok berhasil ditambah ${qty} unit!`);
+  renderStock();
+  // Refresh booth stock tab jika sedang aktif
+  if (activeBoothStockId === bid) renderBoothStockTable(bid);
+}
+
+async function addFlavor() {
+  const icon      = document.getElementById('af-icon').value.trim() || '🍵';
+  const name      = document.getElementById('af-name').value.trim();
+  const price     = Number(document.getElementById('af-price').value);
+  const stockInit = Number(document.getElementById('af-stock').value) || 0;
+  if (!name || !price) { toast('Lengkapi nama dan harga!','error'); return; }
+  const res = await api('/flavors.php','POST',{ name, icon, price, stock_init:stockInit });
+  if (!res.success) { toast(res.message,'error'); return; }
+  // Reload flavors & stock
+  const [flRes, stRes] = await Promise.all([api('/flavors.php'), api('/stock.php')]);
+  if (flRes.success) state.flavors = flRes.data.map(f=>({...f,id:+f.id,price:+f.price}));
+  if (stRes.success) {
+    state.stock={};
+    for(const[bid,fmap] of Object.entries(stRes.data)){
+      state.stock[+bid]={};
+      for(const[fid,qty] of Object.entries(fmap)) state.stock[+bid][+fid]=+qty;
+    }
+  }
+  closeModal('modal-add-flavor');
+  ['af-icon','af-name','af-price','af-stock'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  toast('Rasa baru berhasil ditambahkan!');
+  refreshFlavorDropdowns();
+  renderStock();
+}
+
+function openEditFlavor(id) {
+  const f = getFlavorById(id);
+  if (!f) return;
+  document.getElementById('ef-id').value = f.id;
+  document.getElementById('ef-icon').value = f.icon;
+  document.getElementById('ef-name').value = f.name;
+  document.getElementById('ef-price').value = f.price;
+  openModal('modal-edit-flavor');
+}
+
+async function saveFlavor() {
+  const id    = Number(document.getElementById('ef-id').value);
+  const icon  = document.getElementById('ef-icon').value.trim() || '🍵';
+  const name  = document.getElementById('ef-name').value.trim();
+  const price = Number(document.getElementById('ef-price').value);
+  if (!name || !price) { toast('Lengkapi nama dan harga!','error'); return; }
+  const res = await api('/flavors.php?id='+id,'PUT',{ name, icon, price });
+  if (!res.success) { toast(res.message,'error'); return; }
+  // Update state lokal
+  const f = getFlavorById(id);
+  if (f) { f.icon=icon; f.name=name; f.price=price; }
+  closeModal('modal-edit-flavor');
+  toast('Rasa berhasil diperbarui!');
+  refreshFlavorDropdowns();
+  renderStock();
+}
+
+async function deleteFlavor(id) {
+  if (!confirm('Hapus rasa ini?')) return;
+  const res = await api('/flavors.php?id='+id,'DELETE');
+  if (!res.success) { toast(res.message,'error'); return; }
+  state.flavors = state.flavors.filter(f=>f.id!==id);
+  toast('Rasa berhasil dihapus.');
+  refreshFlavorDropdowns();
+  renderStock();
+}
+
+function refreshFlavorDropdowns() {
+  const flavorOpts = state.flavors.map(f=>`<option value="${f.id}">${f.icon} ${f.name}</option>`).join('');
+  const rsf = document.getElementById('rs-flavor');
+  if (rsf) rsf.innerHTML = '<option value="">Pilih rasa</option>' + flavorOpts;
+}
+
+// ===== FINANCE =====
+function renderFinance() {
+  const txs = state.transactions;
+  const totalRev = txs.reduce((s,t)=>s+t.total,0);
+  const cashRev = txs.filter(t=>t.payment==='cash').reduce((s,t)=>s+t.total,0);
+  const qrisRev = txs.filter(t=>t.payment==='qris').reduce((s,t)=>s+t.total,0);
+  const totalQty = txs.reduce((s,t)=>s+t.items.reduce((a,i)=>a+i.qty,0),0);
+  const avgTx = txs.length ? Math.round(totalRev/txs.length) : 0;
+
+  document.getElementById('finance-metrics').innerHTML = `
+    <div class="metric-card"><div class="m-icon green">💰</div><div class="m-label">Total Pendapatan</div><div class="m-value" style="font-size:22px">${FMT(totalRev)}</div><div class="m-sub">Hari ini semua booth</div></div>
+    <div class="metric-card"><div class="m-icon green">💵</div><div class="m-label">Pendapatan Cash</div><div class="m-value" style="font-size:22px">${FMT(cashRev)}</div><div class="m-sub">${Math.round(cashRev/totalRev*100)||0}% dari total</div></div>
+    <div class="metric-card"><div class="m-icon blue">📱</div><div class="m-label">Pendapatan QRIS</div><div class="m-value" style="font-size:22px">${FMT(qrisRev)}</div><div class="m-sub">${Math.round(qrisRev/totalRev*100)||0}% dari total</div></div>
+    <div class="metric-card"><div class="m-icon amber">🧾</div><div class="m-label">Total Gelas</div><div class="m-value">${totalQty}</div><div class="m-sub">${txs.length} transaksi</div></div>
+    <div class="metric-card"><div class="m-icon amber">📊</div><div class="m-label">Rata-rata Transaksi</div><div class="m-value" style="font-size:22px">${FMT(avgTx)}</div><div class="m-sub">Per transaksi</div></div>
+  `;
+
+  // 7-day revenue chart
+  if (revenue7Chart) revenue7Chart.destroy();
+  const ctx3 = document.getElementById('chartRevenue7')?.getContext('2d');
+  if (ctx3) {
+    revenue7Chart = new Chart(ctx3, {
+      type:'line',
+      data:{ labels:revenue7days.map(d=>d.date), datasets:[{ label:'Pendapatan', data:revenue7days.map(d=>d.rev), borderColor:'#2DBF87', backgroundColor:'rgba(45,191,135,.1)', tension:.4, pointRadius:5, pointBackgroundColor:'#2DBF87', fill:true }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{ticks:{callback:v=>'Rp'+(v/1000).toFixed(0)+'k',font:{size:11}},grid:{color:'rgba(0,0,0,0.04)'}}, x:{grid:{display:false},ticks:{font:{size:10}}} } }
+    });
+  }
+
+  // Flavor pie
+  if (flavorPieChart) flavorPieChart.destroy();
+  const ctx4 = document.getElementById('chartFlavorPie')?.getContext('2d');
+  if (ctx4) {
+    const fCounts = {};
+    txs.forEach(t=>t.items.forEach(i=>{ fCounts[i.flavorId]=(fCounts[i.flavorId]||0)+i.qty; }));
+    const sortedF = Object.entries(fCounts).sort((a,b)=>b[1]-a[1]);
+    flavorPieChart = new Chart(ctx4, {
+      type:'doughnut',
+      data:{ labels:sortedF.map(([fid])=>getFlavorById(Number(fid))?.name||''), datasets:[{ data:sortedF.map(([,q])=>q), backgroundColor:['#2DBF87','#5B8DEF','#F4C233','#F06B5B','#9FE1CB','#AFA9EC','#EF9F27','#85B7EB'], borderWidth:0, hoverOffset:6 }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ font:{size:11}, padding:12 } } }, cutout:'55%' }
+    });
+  }
+
+  // Finance table
+  const ftbody = document.getElementById('finance-table');
+  ftbody.innerHTML = state.booths.map(b=>{
+    const btxs=txs.filter(t=>t.boothId===b.id);
+    const cash=btxs.filter(t=>t.payment==='cash').reduce((s,t)=>s+t.total,0);
+    const qris=btxs.filter(t=>t.payment==='qris').reduce((s,t)=>s+t.total,0);
+    const qty=btxs.reduce((s,t)=>s+t.items.reduce((a,i)=>a+i.qty,0),0);
+    return `<tr>
+      <td><strong>${b.name}</strong><div style="font-size:12px;color:var(--text-muted)">${b.location}</div></td>
+      <td>${FMT(cash)}</td><td>${FMT(qris)}</td>
+      <td>${btxs.length}</td><td>${qty}</td>
+      <td style="font-weight:600;color:var(--green-600)">${FMT(cash+qris)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ===== REPORT =====
+function renderReport() {
+  const filterBid = Number(document.getElementById('filter-booth')?.value)||0;
+  const filterPay = document.getElementById('filter-payment')?.value||'';
+  let txs = [...state.transactions].reverse();
+  if (filterBid) txs = txs.filter(t=>t.boothId===filterBid);
+  if (filterPay) txs = txs.filter(t=>t.payment===filterPay);
+  const tbody = document.getElementById('report-table');
+  tbody.innerHTML = txs.map((t,i)=>`
+    <tr>
+      <td style="color:var(--text-muted);font-size:12px">${String(t.id).padStart(4,'0')}</td>
+      <td style="font-size:13px">${t.time}</td>
+      <td style="font-size:13px">${getBoothById(t.boothId)?.name||''}</td>
+      <td style="font-size:13px">${t.items.map(i=>`${getFlavorById(i.flavorId)?.icon} ${getFlavorById(i.flavorId)?.name} x${i.qty}`).join(', ')}</td>
+      <td style="font-weight:500">${t.items.reduce((s,i)=>s+i.qty,0)}</td>
+      <td><span class="badge ${t.payment==='cash'?'badge-green':'badge-blue'}">${t.payment==='cash'?'💵 Cash':'📱 QRIS'}</span></td>
+      <td style="font-weight:600;color:var(--green-600)">${FMT(t.total)}</td>
+    </tr>`).join('');
+}
+
+function printReport() {
+  exportTransactionsPDF();
+}
+
+// ============================================================
+//  EXPORT UTILITIES
+// ============================================================
+
+// ---- Shared helpers ----
+function todayLabel() {
+  return new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
+}
+function safeFilename(prefix) {
+  return prefix + '_' + new Date().toISOString().slice(0,10);
+}
+
+function downloadCSV(filename, headers, rows) {
+  const BOM = '\uFEFF'; // UTF-8 BOM agar Excel baca emoji & huruf Indonesia
+  const lines = [headers.join(','), ...rows.map(r =>
+    r.map(cell => {
+      const s = String(cell ?? '').replace(/"/g,'""');
+      return /[,"\n]/.test(s) ? `"${s}"` : s;
+    }).join(',')
+  )];
+  const blob = new Blob([BOM + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = filename + '.csv'; a.click();
+  URL.revokeObjectURL(url);
+  toast('File CSV berhasil diunduh!');
+}
+
+function makePDF(title, subtitle, headers, rows, filename, extraContent) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+  // Header branding
+  doc.setFillColor(15, 110, 86);
+  doc.rect(0, 0, 297, 22, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Aphelion Tea — Management System', 14, 10);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text(subtitle, 14, 17);
+  doc.text('Dicetak: ' + todayLabel(), 283, 17, { align: 'right' });
+
+  // Title
+  doc.setTextColor(26, 25, 22);
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+  doc.text(title, 14, 32);
+
+  let startY = 38;
+
+  // Optional extra content (summary boxes)
+  if (extraContent) {
+    startY = extraContent(doc, startY);
+  }
+
+  // Table
+  doc.autoTable({
+    head: [headers],
+    body: rows,
+    startY,
+    styles: { fontSize: 9, cellPadding: 3, font: 'helvetica', textColor: [26, 25, 22] },
+    headStyles: { fillColor: [15, 110, 86], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+    alternateRowStyles: { fillColor: [248, 247, 244] },
+    columnStyles: {},
+    margin: { left: 14, right: 14 },
+  });
+
+  // Footer
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(158, 152, 144);
+    doc.text(`Halaman ${i} dari ${pageCount}`, 283, doc.internal.pageSize.height - 8, { align: 'right' });
+    doc.text('Aphelion Tea © ' + new Date().getFullYear(), 14, doc.internal.pageSize.height - 8);
+  }
+
+  doc.save(filename + '.pdf');
+  toast('File PDF berhasil diunduh!');
+}
+
+// ============================================================
+//  EXPORT TRANSAKSI
+// ============================================================
+function getFilteredTransactions() {
+  const filterBid = Number(document.getElementById('filter-booth')?.value) || 0;
+  const filterPay = document.getElementById('filter-payment')?.value || '';
+  let txs = [...state.transactions].reverse();
+  if (filterBid) txs = txs.filter(t => +t.boothId === filterBid);
+  if (filterPay) txs = txs.filter(t => t.payment === filterPay);
+  return txs;
+}
+
+function exportTransactionsCSV() {
+  const txs = getFilteredTransactions();
+  const headers = ['No','Waktu','Booth','Rasa & Qty','Total Qty','Metode','Total (Rp)'];
+  const rows = txs.map(t => [
+    String(t.id).padStart(4,'0'),
+    t.time || '',
+    getBoothById(t.boothId)?.name || '',
+    t.items.map(i => `${getFlavorById(i.flavorId)?.name || ''} x${i.qty}`).join(' | '),
+    t.items.reduce((s,i)=>s+i.qty,0),
+    t.payment === 'cash' ? 'Cash' : 'QRIS',
+    t.total,
+  ]);
+  downloadCSV(safeFilename('transaksi'), headers, rows);
+}
+
+function exportTransactionsPDF() {
+  const txs = getFilteredTransactions();
+  const totalRev  = txs.reduce((s,t)=>s+t.total,0);
+  const totalQty  = txs.reduce((s,t)=>s+t.items.reduce((a,i)=>a+i.qty,0),0);
+  const cashRev   = txs.filter(t=>t.payment==='cash').reduce((s,t)=>s+t.total,0);
+  const qrisRev   = txs.filter(t=>t.payment==='qris').reduce((s,t)=>s+t.total,0);
+
+  const headers = ['No','Waktu','Booth','Item','Qty','Metode','Total'];
+  const rows = txs.map(t => [
+    String(t.id).padStart(4,'0'),
+    t.time || '',
+    getBoothById(t.boothId)?.name || '',
+    t.items.map(i => `${getFlavorById(i.flavorId)?.name || ''} x${i.qty}`).join(', '),
+    t.items.reduce((s,i)=>s+i.qty,0),
+    t.payment === 'cash' ? 'Cash' : 'QRIS',
+    'Rp ' + Number(t.total).toLocaleString('id-ID'),
+  ]);
+
+  makePDF(
+    'Laporan Transaksi',
+    `Total: ${txs.length} transaksi | ${totalQty} gelas | Cash: Rp ${cashRev.toLocaleString('id-ID')} | QRIS: Rp ${qrisRev.toLocaleString('id-ID')} | Total: Rp ${totalRev.toLocaleString('id-ID')}`,
+    headers, rows, safeFilename('transaksi'),
+    (doc, y) => {
+      // Summary boxes
+      const boxes = [
+        { label:'Total Pendapatan', val:'Rp '+totalRev.toLocaleString('id-ID'), color:[45,191,135] },
+        { label:'Cash',             val:'Rp '+cashRev.toLocaleString('id-ID'),  color:[45,191,135] },
+        { label:'QRIS',             val:'Rp '+qrisRev.toLocaleString('id-ID'),  color:[91,141,239] },
+        { label:'Total Transaksi',  val:txs.length+' tx',                       color:[244,194,51] },
+        { label:'Total Gelas',      val:totalQty+' gelas',                      color:[244,194,51] },
+      ];
+      boxes.forEach((b,i) => {
+        const x = 14 + i * 54;
+        doc.setFillColor(...b.color);
+        doc.roundedRect(x, y, 50, 14, 2, 2, 'F');
+        doc.setTextColor(255,255,255);
+        doc.setFontSize(7); doc.setFont('helvetica','normal');
+        doc.text(b.label, x+4, y+5);
+        doc.setFontSize(10); doc.setFont('helvetica','bold');
+        doc.text(b.val, x+4, y+11);
+      });
+      doc.setTextColor(26,25,22);
+      return y + 20;
+    }
+  );
+}
+
+// ============================================================
+//  EXPORT KEUANGAN (FINANCE)
+// ============================================================
+function exportFinanceCSV() {
+  const txs = state.transactions;
+  const headers = ['Booth','Lokasi','Cash (Rp)','QRIS (Rp)','Total Transaksi','Total Gelas','Total Pendapatan (Rp)'];
+  const rows = state.booths.map(b => {
+    const btxs = txs.filter(t=>+t.boothId===+b.id);
+    const cash  = btxs.filter(t=>t.payment==='cash').reduce((s,t)=>s+t.total,0);
+    const qris  = btxs.filter(t=>t.payment==='qris').reduce((s,t)=>s+t.total,0);
+    const qty   = btxs.reduce((s,t)=>s+t.items.reduce((a,i)=>a+i.qty,0),0);
+    return [b.name, b.location||'', cash, qris, btxs.length, qty, cash+qris];
+  });
+  // Grand total row
+  const gt = rows.reduce((acc,r)=>['',' GRAND TOTAL',acc[2]+r[2],acc[3]+r[3],acc[4]+r[4],acc[5]+r[5],acc[6]+r[6]], ['','',0,0,0,0,0]);
+  rows.push(gt);
+  downloadCSV(safeFilename('keuangan'), headers, rows);
+}
+
+function exportFinancePDF() {
+  const txs = state.transactions;
+  const totalRev = txs.reduce((s,t)=>s+t.total,0);
+  const headers  = ['Booth','Lokasi','Cash','QRIS','Transaksi','Gelas','Total Pendapatan'];
+  const rows = state.booths.map(b => {
+    const btxs = txs.filter(t=>+t.boothId===+b.id);
+    const cash  = btxs.filter(t=>t.payment==='cash').reduce((s,t)=>s+t.total,0);
+    const qris  = btxs.filter(t=>t.payment==='qris').reduce((s,t)=>s+t.total,0);
+    const qty   = btxs.reduce((s,t)=>s+t.items.reduce((a,i)=>a+i.qty,0),0);
+    return [b.name, b.location||'', 'Rp '+cash.toLocaleString('id-ID'), 'Rp '+qris.toLocaleString('id-ID'), btxs.length, qty, 'Rp '+(cash+qris).toLocaleString('id-ID')];
+  });
+
+  makePDF(
+    'Laporan Keuangan per Booth',
+    'Total semua booth | Rp ' + totalRev.toLocaleString('id-ID'),
+    headers, rows, safeFilename('keuangan'), null
+  );
+}
+
+// ============================================================
+//  EXPORT STOK
+// ============================================================
+function exportStockCSV() {
+  const headers = ['Rasa','Harga (Rp)', ...state.booths.map(b=>b.name+' (unit)'), 'Total Stok','Status'];
+  const rows = state.flavors.map(f => {
+    const perBooth = state.booths.map(b => state.stock[+b.id]?.[+f.id] ?? 0);
+    const total    = perBooth.reduce((s,q)=>s+q,0);
+    const status   = total===0?'Habis':total<20?'Menipis':'Aman';
+    return [f.name, f.price, ...perBooth, total, status];
+  });
+  downloadCSV(safeFilename('stok'), headers, rows);
+}
+
+function exportStockPDF() {
+  const headers = ['Rasa','Harga', ...state.booths.map(b=>b.name), 'Total','Status'];
+  const rows = state.flavors.map(f => {
+    const perBooth = state.booths.map(b => state.stock[+b.id]?.[+f.id] ?? 0);
+    const total    = perBooth.reduce((s,q)=>s+q,0);
+    const status   = total===0?'Habis':total<20?'Menipis':'Aman';
+    return [f.name, 'Rp '+f.price.toLocaleString('id-ID'), ...perBooth, total, status];
+  });
+
+  makePDF(
+    'Laporan Stok Global',
+    state.booths.map(b=>b.name).join(' · '),
+    headers, rows, safeFilename('stok'), null
+  );
+}
+
+// ============================================================
+//  EXPORT KARYAWAN
+// ============================================================
+function exportStaffCSV() {
+  const headers = ['No','Nama','Username','Peran','Booth','No. HP','Email','Alamat','Tgl Bergabung','Status'];
+  const rows = state.users.map((u,i) => {
+    const bid = +(u.booth_id || u.boothId || 0);
+    return [
+      i+1, u.name, u.username,
+      u.role==='admin'?'Admin':'Karyawan',
+      bid ? getBoothById(bid)?.name||'' : '—',
+      u.phone||'', u.email||'', u.address||'',
+      u.join_date||u.joinDate||'',
+      u.active?'Aktif':'Nonaktif',
+    ];
+  });
+  downloadCSV(safeFilename('karyawan'), headers, rows);
+}
+
+function exportStaffPDF() {
+  const headers = ['No','Nama','Username','Peran','Booth','No. HP','Email','Bergabung'];
+  const rows = state.users.map((u,i) => {
+    const bid = +(u.booth_id || u.boothId || 0);
+    return [
+      i+1, u.name, u.username,
+      u.role==='admin'?'Admin':'Karyawan',
+      bid ? getBoothById(bid)?.name||'' : '—',
+      u.phone||'—', u.email||'—',
+      u.join_date||u.joinDate||'—',
+    ];
+  });
+
+  makePDF(
+    'Data Karyawan & User',
+    `Total ${state.users.length} user | ${state.users.filter(u=>u.role==='admin').length} Admin | ${state.users.filter(u=>u.role==='staff').length} Karyawan`,
+    headers, rows, safeFilename('karyawan'), null
+  );
+}
+
+// ===== MY STOCK (STAFF) =====
+function renderMyStock() {
+  const bid = +(currentUser.booth_id || currentUser.boothId || 0);
+  const booth = getBoothById(bid);
+  document.getElementById('my-booth-label').textContent = booth?.name+' — '+booth?.location;
+  const container = document.getElementById('my-stock-detail');
+  container.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px">` +
+    state.flavors.map(f=>{
+      const s=state.stock[bid]?.[f.id]||0,pct=Math.min(s/80*100,100);
+      const color=s<10?'var(--red-400)':s<25?'var(--amber-400)':'var(--green-400)';
+      const status=s===0?'<span class="badge badge-red">Habis</span>':s<10?'<span class="badge badge-red">Kritis</span>':s<25?'<span class="badge badge-amber">Menipis</span>':'<span class="badge badge-green">Aman</span>';
+      return `<div style="background:var(--gray-50);border:1px solid var(--border);border-radius:var(--radius);padding:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-size:18px">${f.icon}</div>${status}
+        </div>
+        <div style="font-size:13px;font-weight:500;margin-bottom:6px">${f.name}</div>
+        <div class="stock-bar-wrap"><div class="stock-bar" style="width:${Math.round(pct)}%;background:${color}"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px">
+          <span style="font-size:12px;color:var(--text-muted)">Tersisa</span>
+          <span style="font-size:13px;font-weight:600;color:${s<10?'var(--red-600)':'var(--text-primary)'}">${s} unit</span>
+        </div>
+      </div>`;
+    }).join('') + '</div>';
+}
+
+// ===== MY SALES (STAFF) =====
+function renderMySales() {
+  const bid = +(currentUser.booth_id || currentUser.boothId || 0);
+  const txs = state.transactions.filter(t=>+t.boothId===bid);
+  const rev = txs.reduce((s,t)=>s+t.total,0);
+  const qty = txs.reduce((s,t)=>s+t.items.reduce((a,i)=>a+i.qty,0),0);
+  const cash = txs.filter(t=>t.payment==='cash').reduce((s,t)=>s+t.total,0);
+  const qris = txs.filter(t=>t.payment==='qris').reduce((s,t)=>s+t.total,0);
+  document.getElementById('my-sales-metrics').innerHTML = `
+    <div class="metric-card"><div class="m-icon green">💰</div><div class="m-label">Pendapatan</div><div class="m-value" style="font-size:22px">${FMT(rev)}</div></div>
+    <div class="metric-card"><div class="m-icon amber">🧾</div><div class="m-label">Gelas Terjual</div><div class="m-value">${qty}</div><div class="m-sub">${txs.length} transaksi</div></div>
+    <div class="metric-card"><div class="m-icon green">💵</div><div class="m-label">Cash</div><div class="m-value" style="font-size:22px">${FMT(cash)}</div></div>
+    <div class="metric-card"><div class="m-icon blue">📱</div><div class="m-label">QRIS</div><div class="m-value" style="font-size:22px">${FMT(qris)}</div></div>
+  `;
+  const tbody = document.getElementById('my-sales-table');
+  tbody.innerHTML = [...txs].reverse().map(t=>`
+    <tr>
+      <td style="color:var(--text-muted);font-size:12px">${String(t.id).padStart(4,'0')}</td>
+      <td>${t.time}</td>
+      <td style="font-size:13px">${t.items.map(i=>`${getFlavorById(i.flavorId)?.icon} ${getFlavorById(i.flavorId)?.name} x${i.qty}`).join(', ')}</td>
+      <td style="font-weight:500">${t.items.reduce((s,i)=>s+i.qty,0)}</td>
+      <td><span class="badge ${t.payment==='cash'?'badge-green':'badge-blue'}">${t.payment==='cash'?'💵 Cash':'📱 QRIS'}</span></td>
+      <td style="font-weight:600;color:var(--green-600)">${FMT(t.total)}</td>
+    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:1.5rem">Belum ada transaksi.</td></tr>';
+}
+
+// Init cash input visibility
+document.getElementById('cash-input-area') && (document.getElementById('cash-input-area').style.display='block');
+
+// ===== USER MANAGEMENT =====
+let userTabFilter = 'all';
+
+function renderUsers() {
+  const container = document.getElementById('user-cards-container');
+  const avatarColors = ['#2DBF87','#5B8DEF','#F4C233','#F06B5B','#9FE1CB','#AFA9EC'];
+  let users = state.users;
+  if (userTabFilter === 'admin') users = users.filter(u=>u.role==='admin');
+  if (userTabFilter === 'staff') users = users.filter(u=>u.role==='staff');
+  container.innerHTML = users.map((u,i)=>{
+    const bid = +(u.booth_id || u.boothId || 0);
+    const booth = bid ? getBoothById(bid)?.name : '—';
+    const color = avatarColors[+u.id % avatarColors.length];
+    const isCurrentUser = currentUser && +u.id === +currentUser.id;
+    return `<div class="user-card">
+      <div class="uc-avatar" style="background:${color}">${u.name.charAt(0).toUpperCase()}</div>
+      <div class="uc-info">
+        <div class="uc-name">${u.name} ${isCurrentUser?'<span class="badge badge-green" style="font-size:10px;padding:1px 6px">Kamu</span>':''}</div>
+        <div class="uc-meta">
+          <span class="badge ${u.role==='admin'?'badge-amber':'badge-blue'}" style="font-size:10px;padding:2px 7px">${u.role==='admin'?'Admin':'Karyawan'}</span>
+          &nbsp;@${u.username}&nbsp;·&nbsp;${booth}
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
+          ${u.phone||'—'} &nbsp;·&nbsp; ${u.email||'—'}
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+          📍 ${u.address||'Alamat belum diisi'}
+        </div>
+      </div>
+      <div class="uc-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openEditUserModal(${u.id})" title="Edit">✏️</button>
+        <button class="btn btn-amber btn-sm" onclick="openResetPassModal(${u.id})" title="Reset Password">🔑</button>
+        ${u.role!=='admin'?`<button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})" title="Hapus">🗑</button>`:''}
+      </div>
+    </div>`;
+  }).join('') || '<div style="color:var(--text-muted);font-size:14px;padding:1.5rem">Tidak ada user ditemukan.</div>';
+}
+
+function switchUserTab(filter) {
+  userTabFilter = filter;
+  document.querySelectorAll('#user-tab-bar .tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active', ['all','admin','staff'][i]===filter);
+  });
+  renderUsers();
+}
+
+function openAddUserModal() {
+  document.getElementById('modal-user-title').textContent = 'Tambah User Baru';
+  document.getElementById('btn-save-user').textContent = 'Simpan User';
+  document.getElementById('nu-id').value = '';
+  ['nu-name','nu-user','nu-pass','nu-phone','nu-email','nu-address'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('nu-role').value = 'staff';
+  document.getElementById('nu-booth-wrap').style.display = '';
+  document.getElementById('pass-strength-bar-new').style.width = '0';
+  // Populate booth select
+  const boothOpts = state.booths.map(b=>`<option value="${b.id}">${b.name}</option>`).join('');
+  document.getElementById('nu-booth').innerHTML = '<option value="">Pilih booth</option>' + boothOpts;
+  openModal('modal-add-user');
+}
+
+function openEditUserModal(id) {
+  const u = state.users.find(x=>+x.id===+id);
+  if (!u) return;
+  const bid = +(u.booth_id || u.boothId || 0);
+  document.getElementById('modal-user-title').textContent = 'Edit User';
+  document.getElementById('btn-save-user').textContent = 'Simpan Perubahan';
+  document.getElementById('nu-id').value      = u.id;
+  document.getElementById('nu-name').value    = u.name || '';
+  document.getElementById('nu-user').value    = u.username || '';
+  document.getElementById('nu-pass').value    = '';
+  document.getElementById('nu-role').value    = u.role || 'staff';
+  document.getElementById('nu-phone').value   = u.phone || '';
+  document.getElementById('nu-email').value   = u.email || '';
+  document.getElementById('nu-address').value = u.address || '';
+  // Booth
+  const boothOpts = state.booths.map(b=>`<option value="${b.id}" ${+b.id===bid?'selected':''}>${b.name}</option>`).join('');
+  document.getElementById('nu-booth').innerHTML = '<option value="">Pilih booth</option>' + boothOpts;
+  document.getElementById('nu-booth-wrap').style.display = u.role==='admin' ? 'none' : '';
+  document.getElementById('pass-strength-bar-new').style.width = '0';
+  openModal('modal-add-user');
+}
+
+function toggleBoothField() {
+  const role = document.getElementById('nu-role').value;
+  document.getElementById('nu-booth-wrap').style.display = role==='admin' ? 'none' : '';
+}
+
+async function saveUser() {
+  const editId  = document.getElementById('nu-id').value;
+  const name    = document.getElementById('nu-name').value.trim();
+  const username= document.getElementById('nu-user').value.trim().toLowerCase();
+  const pass    = document.getElementById('nu-pass').value.trim();
+  const role    = document.getElementById('nu-role').value;
+  const boothId = role==='admin' ? null : Number(document.getElementById('nu-booth').value);
+  const phone   = document.getElementById('nu-phone').value.trim();
+  const email   = document.getElementById('nu-email').value.trim();
+  const address = document.getElementById('nu-address').value.trim();
+
+  if (!name || !username) { toast('Nama dan username wajib diisi!','error'); return; }
+  if (role==='staff' && !boothId) { toast('Pilih booth untuk karyawan!','error'); return; }
+
+  let res;
+  if (editId) {
+    const payload = { name, username, role, booth_id:boothId, phone, email, address };
+    if (pass) {
+      if (pass.length<6) { toast('Password min. 6 karakter!','error'); return; }
+      payload.password = pass;
+    }
+    res = await api('/users.php?id='+editId,'PUT', payload);
+  } else {
+    if (!pass || pass.length<6) { toast('Password min. 6 karakter!','error'); return; }
+    res = await api('/users.php','POST',{ name, username, password:pass, role, booth_id:boothId, phone, email, address });
+  }
+
+  if (!res.success) { toast(res.message,'error'); return; }
+
+  // Reload users dari server
+  const usersRes = await api('/users.php');
+  if (usersRes.success) state.users = usersRes.data;
+
+  // Sync currentUser jika edit diri sendiri
+  if (editId && currentUser && currentUser.id===Number(editId)) {
+    currentUser = state.users.find(u=>+u.id===+editId) || currentUser;
+    document.getElementById('topbar-name').textContent = currentUser.name;
+    document.getElementById('topbar-avatar').textContent = currentUser.name.charAt(0).toUpperCase();
+  }
+
+  toast(editId ? 'Data user berhasil diperbarui!' : 'User baru berhasil ditambahkan!');
+  closeModal('modal-add-user');
+  renderUsers();
+  renderStaff();
+  setupUI();
+}
+
+async function deleteUser(id) {
+  if (currentUser && +currentUser.id===+id) { toast('Tidak bisa menghapus akun yang sedang login!','error'); return; }
+  if (!confirm('Hapus user ini?')) return;
+  const res = await api('/users.php?id='+id,'DELETE');
+  if (!res.success) { toast(res.message,'error'); return; }
+  state.users = state.users.filter(u=>+u.id!==+id);
+  toast('User berhasil dihapus.');
+  renderUsers();
+  renderStaff();
+}
+
+function openResetPassModal(id) {
+  const u = state.users.find(x=>+x.id===+id);
+  if (!u) return;
+  document.getElementById('rp-uid').value = u.id;
+  document.getElementById('rp-username-label').textContent = u.name + ' (@' + u.username + ')';
+  document.getElementById('rp-new').value     = '';
+  document.getElementById('rp-confirm').value = '';
+  document.getElementById('pass-strength-bar-reset').style.width   = '0';
+  document.getElementById('pass-strength-label-reset').textContent = '';
+  openModal('modal-reset-pass');
+}
+
+async function doResetPassword() {
+  const uid     = document.getElementById('rp-uid').value;
+  const newPass = document.getElementById('rp-new').value.trim();
+  const confirm = document.getElementById('rp-confirm').value.trim();
+  if (!newPass || newPass.length<6) { toast('Password min. 6 karakter!','error'); return; }
+  if (newPass !== confirm) { toast('Konfirmasi password tidak cocok!','error'); return; }
+  const res = await api('/users.php?action=reset_password&id='+uid,'PUT',{
+    new_password: newPass, confirm_password: confirm
+  });
+  if (!res.success) { toast(res.message,'error'); return; }
+  toast('Password berhasil direset!');
+  closeModal('modal-reset-pass');
+}
+
+function checkPassStrengthNew(val) { _checkPassStrength(val,'pass-strength-bar-new',null); }
+function checkPassStrengthReset(val) { _checkPassStrength(val,'pass-strength-bar-reset','pass-strength-label-reset'); }
+function checkPassStrength(val) { _checkPassStrength(val,'pass-strength-bar','pass-strength-label'); }
+
+function _checkPassStrength(val,barId,labelId) {
+  const bar = document.getElementById(barId);
+  const label = labelId ? document.getElementById(labelId) : null;
+  if (!bar) return;
+  let score=0;
+  if (val.length>=6) score++;
+  if (val.length>=10) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^a-zA-Z0-9]/.test(val)) score++;
+  const pct = Math.min(score/5*100,100);
+  const colors = ['','#F06B5B','#F4C233','#F4C233','#2DBF87','#0F6E56'];
+  const labels = ['','Sangat Lemah','Lemah','Cukup','Kuat','Sangat Kuat'];
+  bar.style.width = pct+'%';
+  bar.style.background = colors[score]||'var(--gray-200)';
+  if (label) label.textContent = val.length ? labels[score]||'' : '';
+}
+
+// ===== PROFILE PAGE =====
+function renderProfile() {
+  const u = currentUser;
+  if (!u) return;
+  const bid   = +(u.booth_id || u.boothId || 0);
+  const booth = bid ? getBoothById(bid)?.name : 'Admin Pusat';
+  const avatarColors = ['#2DBF87','#5B8DEF','#F4C233','#F06B5B'];
+  const color = avatarColors[+u.id % avatarColors.length];
+  const avatarEl = document.getElementById('prof-avatar-lg');
+  avatarEl.textContent = u.name.charAt(0).toUpperCase();
+  avatarEl.style.background = color;
+  document.getElementById('prof-name-display').textContent    = u.name;
+  document.getElementById('prof-role-display').textContent    = u.role==='admin' ? 'Admin' : 'Karyawan';
+  document.getElementById('prof-booth-display').textContent   = booth;
+  document.getElementById('prof-phone-display').textContent   = u.phone    || 'Belum diisi';
+  document.getElementById('prof-email-display').textContent   = u.email    || 'Belum diisi';
+  document.getElementById('prof-address-display').textContent = u.address  || 'Belum diisi';
+  document.getElementById('prof-username-display').textContent= '@' + u.username;
+  document.getElementById('prof-join-display').textContent    = u.join_date || u.joinDate || '-';
+  // Fill edit fields
+  document.getElementById('pe-name').value     = u.name     || '';
+  document.getElementById('pe-email').value    = u.email    || '';
+  document.getElementById('pe-phone').value    = u.phone    || '';
+  document.getElementById('pe-username').value = u.username || '';
+  document.getElementById('pe-address').value  = u.address  || '';
+  // Clear password fields
+  ['cp-current','cp-new','cp-confirm'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  if (document.getElementById('pass-strength-bar')) document.getElementById('pass-strength-bar').style.width='0';
+  if (document.getElementById('pass-strength-label')) document.getElementById('pass-strength-label').textContent='';
+}
+
+function switchProfileTab(tab) {
+  document.querySelectorAll('#sec-profile .tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#sec-profile .tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('ptab-'+tab).classList.add('active');
+  // activate the correct tab button
+  document.querySelectorAll('#sec-profile .tab-btn').forEach(b=>{
+    if (b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+tab+"'")) b.classList.add('active');
+  });
+}
+
+async function saveProfileInfo() {
+  const name     = document.getElementById('pe-name').value.trim();
+  const email    = document.getElementById('pe-email').value.trim();
+  const phone    = document.getElementById('pe-phone').value.trim();
+  const username = document.getElementById('pe-username').value.trim().toLowerCase();
+  const address  = document.getElementById('pe-address').value.trim();
+  if (!name || !username) { toast('Nama dan username wajib diisi!','error'); return; }
+
+  const res = await api('/users.php?id='+currentUser.id,'PUT',{
+    name, email, phone, username, address,
+    role: currentUser.role,
+    booth_id: currentUser.booth_id || currentUser.boothId || null,
+    active: 1
+  });
+  if (!res.success) { toast(res.message,'error'); return; }
+
+  // Refresh currentUser dari server
+  const meRes = await api('/auth.php?action=me');
+  if (meRes.success) {
+    currentUser = meRes.data;
+    // Sync state.users
+    const idx = state.users.findIndex(u=>+u.id===+currentUser.id);
+    if (idx>=0) state.users[idx] = {...state.users[idx], ...currentUser};
+  }
+
+  document.getElementById('topbar-name').textContent = currentUser.name;
+  document.getElementById('topbar-avatar').textContent = currentUser.name.charAt(0).toUpperCase();
+  toast('Profil berhasil diperbarui!');
+  renderProfile();
+}
+
+async function doChangePassword() {
+  const current = document.getElementById('cp-current').value.trim();
+  const newPass = document.getElementById('cp-new').value.trim();
+  const confirm = document.getElementById('cp-confirm').value.trim();
+  if (!current || !newPass) { toast('Semua field wajib diisi!','error'); return; }
+  if (newPass.length<6) { toast('Password baru min. 6 karakter!','error'); return; }
+  if (newPass !== confirm) { toast('Konfirmasi password tidak cocok!','error'); return; }
+
+  const res = await api('/users.php?action=change_password','PUT',{
+    current_password: current,
+    new_password: newPass,
+    confirm_password: confirm
+  });
+  if (!res.success) { toast(res.message,'error'); return; }
+
+  toast('Password berhasil diubah!');
+  ['cp-current','cp-new','cp-confirm'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  if (document.getElementById('pass-strength-bar')) document.getElementById('pass-strength-bar').style.width='0';
+  if (document.getElementById('pass-strength-label')) document.getElementById('pass-strength-label').textContent='';
+}
+</script>
+</body>
+</html>
